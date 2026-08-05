@@ -16,9 +16,8 @@ Realign the site to the **2026 proposal brand** (full spec in `05-brand-and-voic
 ```
 Home
 ├── Services
-│   ├── In-Person Events
-│   ├── Hybrid Events
-│   └── Virtual Events  (incl. Virtual Event Depot)
+│   ├── In-Person Events & Conferences   ← PRIMARY service (lead here)
+│   └── Hybrid & Virtual  (ONE merged page — secondary; incl. Virtual Event Depot)
 ├── Industries              ← NEW hub (Associations, Corporate, Government, Nonprofit, Sports/Endurance)
 ├── Case Studies            ← rebuild of "Past Events" as structured, metric-led stories
 ├── About
@@ -44,8 +43,8 @@ The first screen must answer **what / who / where + proof + one action** — for
 **Draft copy** (visualized in `/mockups/homepage-hero.html`, built in the **current brand**: Poppins/Barlow, navy-blue-pink gradient, Sacramento script accent):
 
 - **Eyebrow:** `Certified woman-owned · Long Beach, CA · Since 1994`
-- **H1:** `Complex events, run flawlessly — for 15–40% less.` *(with "flawlessly" as the pink script accent, echoing the proposal cover)*
-- **Subhead:** `Coast to Coast Conferences & Events (CTC) is your full-service event partner. Since 1994 we've produced 2,500+ conferences, receptions, and sporting events — for up to 10,000 daily attendees and budgets to $8M — saving clients 15–40% in cost and 25% of their time. It's why 75% come back, year after year.`
+- **H1:** `In-person events, run flawlessly — for 15–40% less.` *(with "flawlessly" as a pink **italic** accent — no cursive on the web)*
+- **Subhead:** `Coast to Coast Conferences & Events (CTC) is your full-service partner for in-person events and conferences. Since 1994 we've produced 2,500+ events for up to 10,000 daily attendees — cutting event costs 15–40% and giving back 25% of your time. Real expertise, real relationships, real energy — it's why 75% of clients come back, year after year.`
 - **Proof strip (4 stat tiles):** `15–40% cost saved` · `25% time back` · `2,500+ events` · `3M+ attendees`
 - **Primary CTA:** `Request a Proposal` (logo gradient) · **Secondary:** `See Case Studies`
 - **Trust row:** market-segment pills (Corporate / Associations / Government / Nonprofit / Sports & Rec); swap for cleared client logos when available.
@@ -59,24 +58,19 @@ The first screen must answer **what / who / where + proof + one action** — for
 *Draft — confirm numbers/voice first. Format: **Title** (≤60 char target) / **Meta** (≤155 char) / **H1**.*
 
 **Home**
-- Title: `Event Management Company in Long Beach, CA | CTC`
-- Meta: `Full-service in-person, hybrid & virtual event management since 1994. We run conferences of 100–10,000+ attendees and cut costs 15–40%. Get a proposal.`
-- H1: `Complex events, flawlessly run — for 15–40% less.`
+- Title: `In-Person Event Management Company in Long Beach, CA | CTC`
+- Meta: `Certified woman-owned, full-service in-person event & conference management since 1994. We run events up to 10,000 attendees and cut event costs 15–40%. Get a proposal.`
+- H1: `In-person events, flawlessly run — for 15–40% less.`
 
-**In-Person Events**
+**In-Person Events & Conferences** *(primary service page)*
 - Title: `In-Person Event & Conference Management | CTC`
-- Meta: `From board meetings to 10,000-attendee conferences — venue sourcing, logistics, onsite management and sponsor coordination handled end to end.`
+- Meta: `From board meetings to 10,000-attendee conferences — venue & hotel negotiation, logistics, registration, onsite management and exhibitor coordination, handled end to end.`
 - H1: `In-person events, managed down to the last detail.`
 
-**Hybrid Events**
-- Title: `Hybrid Event Management & Production | CTC`
-- Meta: `Connect in-room and online audiences with hybrid events that combine the right tech with real engagement. 90%+ engagement on government programs.`
-- H1: `Hybrid events that keep every audience connected.`
-
-**Virtual Events**
-- Title: `Virtual Event Management & Virtual Event Depot | CTC`
-- Meta: `Custom-built virtual event experiences via our Virtual Event Depot platform — engaging, on-brand, and measurable from registration to report.`
-- H1: `Virtual events, built around your audience.`
+**Hybrid & Virtual** *(ONE merged, secondary page)*
+- Title: `Hybrid & Virtual Event Management | CTC`
+- Meta: `When your event goes beyond the room, CTC extends it online — the right technology and genuine engagement, measured from registration to report. Incl. Virtual Event Depot.`
+- H1: `Hybrid & virtual, when the moment calls for it.`
 
 **Industries (hub)**
 - Title: `Event Management for Associations, Corporate & Government | CTC`
@@ -107,13 +101,13 @@ The first screen must answer **what / who / where + proof + one action** — for
 1. **Unblock crawlers** — adjust Cloudflare bot rule + robots.txt to explicitly allow `Googlebot`, `Google-Extended`, `Bingbot`, `DuckDuckBot`; verify with live fetch tests. *(AI-1, T-1)*
 2. **Structured data** (JSON-LD in `<head>`):
    - `Organization` + `LocalBusiness` — name, logo, NAP, geo, hours, sameAs (LinkedIn, Facebook, Crunchbase); include the **woman-owned** signal and NAICS/registration identifiers (561920, CAGE 5SN86, CA Seller of Travel) for trust + government-procurement search.
-   - `Service` × 3 (in-person / hybrid / virtual).
+   - `Service` — in-person event planning (primary) + one merged hybrid/virtual; plus the deeper scope where relevant.
    - `FAQPage` on the FAQ + service pages.
    - `BreadcrumbList` site-wide; `Review`/`AggregateRating` where legitimately sourced.
    - Validate every type in **Google Rich Results Test**.
 3. **Answer blocks** — add a concise **FAQ** answering the ~15 buyer questions (questionnaire §6), each a self-contained, quotable answer. Example:
    > **Q: Where is Coast to Coast Conferences & Events located?**
-   > A: CTC is headquartered at 1 World Trade Center, Suite 800, Long Beach, California, and produces events nationwide and internationally.
+   > A: CTC is headquartered in Downtown Long Beach, California, and produces events nationwide.
 4. **Consistent boilerplate + NAP** everywhere (site footer, schema, GBP, directories) using the approved questionnaire §3 boilerplate. *(AI-4)*
 5. **Citable proof** — present the 15–40% / 25% stats with brief context + "as of 2026" framing. *(AI-6)*
 6. **Add `/llms.txt`** — name, one-line description, key URLs, boilerplate. *(AI-5)*

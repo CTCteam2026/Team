@@ -11,6 +11,7 @@ Engagement to improve **page speed, SEO visibility, and AI searchability** (Gemi
 | [`deliverables/03-revision-plan.md`](deliverables/03-revision-plan.md) | The plan: brand alignment, IA/sitemap, homepage rewrite, page-by-page titles/meta, technical + AEO fixes, prioritized P0→P2 roadmap. |
 | [`deliverables/04-metrics-and-reporting.md`](deliverables/04-metrics-and-reporting.md) | KPI definitions + the weekly Wednesday cadence + tooling checklist. |
 | [`deliverables/05-brand-and-voice.md`](deliverables/05-brand-and-voice.md) | **Source of truth** brand system extracted from the 2026 proposal — colors, fonts, voice, proof points, credentials, methodology, scope of work. |
+| [`deliverables/06-homepage-build-guide.md`](deliverables/06-homepage-build-guide.md) | **Step-by-step Divi/WordPress build** for the homepage rework — sections, modules, theme settings, schema, hero photo, speed pass. |
 | [`mockups/homepage-full.html`](mockups/homepage-full.html) | Full redesigned homepage, in the current brand, with toggleable design notes. |
 | [`mockups/homepage-hero.html`](mockups/homepage-hero.html) | Above-the-fold redesign (desktop + mobile), annotated for conversion/SEO/AI. |
 | [`reporting/weekly-scorecard.xlsx`](reporting/weekly-scorecard.xlsx) | 4-tab weekly scorecard (Progress · Marketing Performance · AI Visibility · Notes). Import to Google Sheets. |

@@ -26,7 +26,7 @@ Prepared for the Wednesday working session · *This is a **pre-filled draft**. E
 > "Full-service event management that saves you **15–40% in cost** and up to **25% of your time** — without sacrificing quality or attendee experience — across in-person, hybrid, and virtual events from 100 to 10,000+ attendees."
 
 - Are the **15–40% / 25%** figures still current and defensible? → ✍️ Your answer:
-- Additional proof numbers to feature (30% ↑ attendee satisfaction, 50% cost savings, 60% ↑ sponsor leads, 5,000 hotel room-nights/yr, 90%+ gov virtual engagement) — which are **verified and quotable**? → ✍️ Your answer:
+- Proof to feature: **2,500+ events, 3M+ attendees, 75% client return, up to 10,000 daily attendees, $8M budgets, high attendee satisfaction.** *(The old website case-claims — 30% satisfaction / 50% cost / 60% sponsor leads / 5,000 room-nights / 90% gov engagement — are **removed as inaccurate**; confirm you agree.)* → ✍️ Your answer:
 - What's the #1 pain you remove for a client? (cost, chaos/stress, time, risk, attendee experience) → ✍️ Your answer:
 
 ---
@@ -34,13 +34,13 @@ Prepared for the Wednesday working session · *This is a **pre-filled draft**. E
 ## 3. Messaging & voice
 *How CTC should sound everywhere — site, AI answers, proposals.*
 
-**Draft (my read):**
-- **Tone attributes:** expert, calm, proof-driven, warm. Current site language leans on *"clarity, confidence, and care."*
-- **Say / lead with:** concrete outcomes, numbers, years of experience, named event types.
-- **Avoid:** empty hype adjectives ("amazing," "world-class," "seamless" used without proof), jargon, one-size-fits-all language.
+**Draft (updated):**
+- **Tone attributes:** expert, meticulous, proof-driven, warm — **plus genuine team energy.** Professional but **youthful and high-energy**: a crew that loves the work and the people, and brings real momentum to the room (translate the spirit of "we'll even jump in and get the dance floor going" — never that phrase verbatim). Balances "we sweat every detail" with "we're a joy to work with."
+- **Say / lead with:** concrete outcomes, numbers, years of experience, **in-person** event types; energy + partnership.
+- **Avoid:** empty hype adjectives ("amazing," "world-class," "seamless" used without proof), jargon, stiff corporate tone, one-size-fits-all language.
 - **Tagline confirmed:** **"Your Event Partner."**
 - **Boilerplate (draft — the 2-sentence description to reuse on site, schema, directories, and pitch to AI engines):**
-  > "Coast to Coast Conferences & Events (CTC) is a **certified woman-owned**, full-service event management company in **Long Beach, California**, producing in-person, hybrid, and virtual conferences and events for up to **10,000 daily attendees** nationwide. Founded in **1994**, CTC has produced **2,500+ events** and is known for cutting event costs **15–40%** while saving clients **25% of their time**."
+  > "Coast to Coast Conferences & Events (CTC) is a **certified woman-owned**, full-service event management company in **Long Beach, California**, specializing in **in-person conferences and events** (plus hybrid and virtual) for up to **10,000 daily attendees** nationwide. Founded in **1994**, CTC has produced **2,500+ events** and is known for cutting event costs **15–40%** while giving clients back **25% of their time**."
 
 - Approve/edit the tone attributes → ✍️ Your answer:
 - Approve/edit the boilerplate (this is the exact text we'll syndicate everywhere) → ✍️ Your answer:
@@ -53,7 +53,7 @@ Prepared for the Wednesday working session · *This is a **pre-filled draft**. E
 
 **Draft (my read):**
 - **HQ / NAP:** Coast to Coast Conferences & Events — 1 World Trade Center, Suite 800, Long Beach, CA 90802.
-- **Service footprint:** local (LA / Long Beach / SoCal), regional, national, international.
+- **Service footprint:** local (LA / Long Beach / SoCal), regional, **national** *(we do **not** use "international" framing)*.
 - **SEO implication:** you can win *both* a local pack ("event management company Long Beach") *and* national terms — but the site must state the HQ clearly (NAP + `LocalBusiness` schema + Google Business Profile) **and** claim the national footprint explicitly.
 
 - Confirm exact NAP (name, address, phone) as it should appear everywhere → ✍️ Your answer:

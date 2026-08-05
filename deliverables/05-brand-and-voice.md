@@ -10,6 +10,8 @@
 - **Founder & President:** **Michelle Manire** (CMM; Leadership Long Beach; Goldman Sachs 10KSB; UCLA Anderson MDE).
 - **Founded:** 1994 · **Downtown Long Beach, California.**
 - **Key differentiator to lead with everywhere:** **certified woman-owned business.**
+- **Primary service focus:** **in-person events & conferences** (hybrid/virtual are secondary, merged). **National** footprint — **do not use "international"** in messaging.
+- **Years in business:** since 1994 — **confirm the exact number to use publicly** (proposal shows "30+ years / three decades").
 
 ## 2. Visual system (matched in the mockups)
 | Token | Hex | Use |
@@ -23,22 +25,24 @@
 | Slate | `#4C5773` | Body text |
 
 - **Logo gradient:** `linear-gradient(100deg, #EE6197 → #8B5FBF → #417CBC)` (pink→purple→blue) — used on the wordmark rule and primary CTA.
-- **Typography:** **Poppins** (headings/display, 600–800) · **Barlow** (body, 400–600) · **Amsterdam Three** script for one accent word per section (mockups substitute *Sacramento*, a free, embeddable near-match — swap to Amsterdam Three in production).
+- **Typography:** **Poppins** (headings/display, 600–800) · **Barlow** (body, 400–600). **Amsterdam Three script is PRINT/COLLATERAL ONLY — do NOT use the cursive on the website.** On the web, use a **pink italic** Poppins for the same accent word.
 - **Imagery motif:** grayscale/duotone **Long Beach waterfront**, blue **city-skyline** silhouette, subtle wave line-art.
 - **Section markers:** numeric "O1 / O2 / O3" style in the proposal.
 
 ## 3. Voice
-- **Personality:** warm, partnership-first, confident, calm, meticulous. You are the client's **"go-to event partner"** in a **"long-term strategic partnership."**
-- **Signature phrases:** *seamless · flawless execution · stress-free · meticulous planning · behind the scenes · bring your event to life · exceeds expectations · every moving part, handled.*
+- **Personality:** warm, partnership-first, confident, meticulous — **plus genuine team energy.** CTC is a crew that genuinely loves the work and the people they work with, and that shows up in the room. Translate this into copy that feels **professional but youthful and high-energy** (not stiff corporate, not gimmicky). Think: the team that will sweat every logistical detail *and* bring real warmth and momentum to your event.
+- **Signature phrases:** *seamless · flawless execution · stress-free · meticulous planning · behind the scenes · bring your event to life · exceeds expectations · every moving part, handled · real expertise, real relationships, real energy.*
 - **Pattern:** each capability is introduced with a short, benefit-led one-liner, then specifics (mirror this on service pages).
-- **Avoid:** cold corporate jargon, hype without proof.
+- **Avoid:** cold corporate jargon; hype without proof; the "start the dance floor" anecdote verbatim (translate the *spirit* of it — energy + willingness to jump in — into professional copy).
 
 ## 4. Proof points (current, from the proposal — use these, not the older site stats)
 - **2,500+ events produced** · **3,000,000+ attendees** · **30+ years.**
 - **75% of clients return** year after year.
 - Capability: **up to 10,000 daily attendees**, budgets **up to $8,000,000.**
 - **Team:** ~13 people, **70+ years combined experience** (Founder/President, Chief of Staff, Executive Producer, Event Managers, Registration Manager, Marketing Manager, Business Development, Coordinators).
-- **Value prop (verbatim):** "We save our clients **15%–40% on event costs** through creative solutions. As your strategic event partner we save you **25% on your valued time**." *(Separately, a Post-Event Report can save up to 25% in labor costs next time.)*
+- **Value prop (verbatim):** "We save our clients **15%–40% on event costs** through creative solutions. As your strategic event partner we save you **25% on your valued time**." The time savings come from **expertise, long-standing vendor/venue relationships, institutional knowledge, and proprietary processes** — not corner-cutting. *(Separately, a Post-Event Report can save up to 25% in labor costs next time.)*
+- **Also lead with:** **year-over-year event partner** (75% return) and high **attendee satisfaction**.
+- **DO NOT publish these legacy website claims (inaccurate):** ~~30% ↑ attendee satisfaction~~, ~~50% cost savings~~, ~~60% ↑ sponsor leads~~, ~~5,000 hotel room-nights/yr~~, ~~90% gov virtual engagement~~.
 - **Tech stack:** Cvent, ClickUp, Passkey, Proposify, Google Drive, HubSpot, online registration platforms, event apps.
 
 ## 5. Credentials (strong for trust, gov procurement & AI answers)
@@ -55,7 +59,11 @@
 **Named assets:** Welcome Guide · Master Event Showbook · Onsite Event Guide · Post-Event Report · Master Event Timeline · Event Task Tracker · Shared Document Hub.
 
 ## 7. Scope of work (the real service taxonomy — build the site's service architecture on this)
-Event Management (Planning, Timeline & Communications) · Venue Sourcing · Venue Management · Event Branding · Signage · Décor · Food & Beverage · Registration (online + onsite + mobile app) · Swag Bag · Housing Logistics (room blocks, concessions, overflow) · Third-Party Vendors · Photographer/Videographer · Staff Management · VIP & Press Logistics · Sponsorships · Speaker Management · Programming (A/V, Stage Production, Entertainment, Recording & Broadcast) · Reception Planning · Financial Management · Event Marketing · Exhibit Management · Onsite Management · Post-Event · **Tournaments.**
+Event Management (Planning, Timeline & Communications) · **Venue & Hotel Sourcing / Negotiation** · Venue Management · Event Branding · Signage · Décor · Food & Beverage · Registration (online + onsite + mobile app) · Swag Bag · Housing Logistics (room blocks, concessions, overflow) · Third-Party Vendors · Photographer/Videographer · Staff Management · VIP & Press Logistics · **Sponsorship *Management*** · Speaker Management · Programming (A/V, Stage Production, Entertainment, Recording & Broadcast) · Reception Planning · Financial Management · Event Marketing · Exhibit Management · Onsite Management · Post-Event · **Tournaments.**
+
+> **Two critical wording rules:**
+> - **Sponsorship = MANAGEMENT only.** CTC manages sponsors and sponsorship deliverables — it **never sources or sells sponsorships**. Never imply sponsor sales/lead-gen.
+> - **Hotel/venue = negotiation strength.** CTC's deep hotel & venue background is framed as **negotiation and relationships** — do **not** cite a "hotel room-nights per year" metric.
 
 **Recommended onsite team:** Project Manager, Event Manager, Executive Producer, 2 Event Coordinators.
 
