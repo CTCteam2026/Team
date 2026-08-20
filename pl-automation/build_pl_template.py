@@ -1,17 +1,13 @@
 #!/usr/bin/env python3
 """
-Builds the CTC Conference P&L Builder — an input-driven P&L template.
+Builds the CTC Conference P&L Builder.
 
-Every number in the P&L is a live formula. The only cells anyone types into are
-the yellow ones on INPUTS and the two input columns on SCOPE.
+Scope of work mirrors the 2026 Master Proposal Template: the SCOPE tab carries
+every sub-item ("VENUE SOURCING: Request for Proposal"), the P&L rolls them up
+to the top-level headings ("VENUE SOURCING").
 
-Hour drivers are calibrated against four final, accurate P&Ls:
-  - LCT / Marine Recreation Association Annual 2026 (FINAL June.10.2026 v3)
-  - AFCI Studio Summit 2027            (FINAL July.27.2026 v2)
-  - WTUI 2027                          (FINAL June.24.2026 v2)
-  - NICA 2026                          (Actual NICA 2026)
-
-Run:  python3 build_pl_template.py
+Hours come from an Event Scale Index rather than flat percentages -- see
+HOW TO USE. Run:  python3 build_pl_template.py
 """
 
 import openpyxl
@@ -21,426 +17,497 @@ from openpyxl.worksheet.datavalidation import DataValidation
 
 OUT = "CTC_Conference_PL_Builder.xlsx"
 
-# ---------------------------------------------------------------- styling ----
-FONT = "Arial"
-NAVY = "1F3864"
-TEAL = "2E7D8F"
+# ------------------------------------------------------- house style ---------
+HEAD_FONT = "Poppins"
+BODY_FONT = "Barlow"
+MAGENTA = "9C1E83"        # title bar
+YELLOW_T = "FFFF00"       # title bar text
+BLUE = "6D9EEB"           # section bands
+PINK = "EAD1DC"           # highlighted / totals rows
+INPUT_FILL = "FFF2CC"     # cells the user types in
+INPUT_TXT = "0000FF"
 GREY = "F2F2F2"
-YELLOW = "FFF2CC"          # cells the user fills in
-BLUE_TXT = "0000FF"        # hardcoded inputs
-GREEN_TXT = "008000"       # cross-sheet links
 
-MONEY = '$#,##0;($#,##0);"-"'
-MONEY2 = '$#,##0.00;($#,##0.00);"-"'
+MONEY = '"$"#,##0;("$"#,##0);"-"'
+RATE = '"$"#,##0.00;("$"#,##0.00);"-"'
 PCT = '0.0%;(0.0%);"-"'
 HRS = '#,##0;(#,##0);"-"'
 
 thin = Side(style="thin", color="BFBFBF")
 BOX = Border(left=thin, right=thin, top=thin, bottom=thin)
-TOPLINE = Border(top=Side(style="thin", color="404040"))
 DBL = Border(top=Side(style="thin", color="404040"),
              bottom=Side(style="double", color="404040"))
 
 
-def title(ws, cell, text, size=14):
-    ws[cell] = text
-    ws[cell].font = Font(name=FONT, size=size, bold=True, color=NAVY)
-
-
-def band(ws, row, first_col, last_col, text):
-    """Section header bar."""
-    ws.cell(row=row, column=first_col).value = text
-    for c in range(first_col, last_col + 1):
+def titlebar(ws, row, c1, c2, text):
+    ws.cell(row=row, column=c1).value = text
+    for c in range(c1, c2 + 1):
         cell = ws.cell(row=row, column=c)
-        cell.fill = PatternFill("solid", fgColor=NAVY)
-        cell.font = Font(name=FONT, size=11, bold=True, color="FFFFFF")
+        cell.fill = PatternFill("solid", fgColor=MAGENTA)
+        cell.font = Font(name=HEAD_FONT, size=14, bold=True, color=YELLOW_T)
+    ws.row_dimensions[row].height = 24
 
 
-def headers(ws, row, first_col, labels):
+def band(ws, row, c1, c2, text):
+    ws.cell(row=row, column=c1).value = text
+    for c in range(c1, c2 + 1):
+        cell = ws.cell(row=row, column=c)
+        cell.fill = PatternFill("solid", fgColor=BLUE)
+        cell.font = Font(name=HEAD_FONT, size=12, bold=True, color="FFFFFF")
+    ws.row_dimensions[row].height = 20
+
+
+def headers(ws, row, c1, labels, size=10):
     for i, lab in enumerate(labels):
-        cell = ws.cell(row=row, column=first_col + i)
+        cell = ws.cell(row=row, column=c1 + i)
         cell.value = lab
-        cell.fill = PatternFill("solid", fgColor=TEAL)
-        cell.font = Font(name=FONT, size=10, bold=True, color="FFFFFF")
-        cell.alignment = Alignment(horizontal="center", vertical="center",
+        cell.font = Font(name=HEAD_FONT, size=size, bold=True)
+        cell.alignment = Alignment(horizontal="center", vertical="bottom",
                                    wrap_text=True)
-        cell.border = BOX
+        cell.border = Border(bottom=Side(style="medium", color="404040"))
 
 
-def inp(ws, cell, value, fmt=None, note=None):
-    """An input cell: yellow fill, blue text."""
+def inp(ws, cell, value, fmt=None):
     ws[cell] = value
-    ws[cell].fill = PatternFill("solid", fgColor=YELLOW)
-    ws[cell].font = Font(name=FONT, size=10, bold=True, color=BLUE_TXT)
+    ws[cell].fill = PatternFill("solid", fgColor=INPUT_FILL)
+    ws[cell].font = Font(name=BODY_FONT, size=10, bold=True, color=INPUT_TXT)
     ws[cell].border = BOX
     if fmt:
         ws[cell].number_format = fmt
-    if note:
-        ws.cell(row=ws[cell].row, column=ws[cell].column + 1).value = note
 
 
-def lab(ws, cell, text, bold=False, indent=0):
+def lab(ws, cell, text, bold=False):
     ws[cell] = text
-    ws[cell].font = Font(name=FONT, size=10, bold=bold)
-    if indent:
-        ws[cell].alignment = Alignment(indent=indent)
+    ws[cell].font = Font(name=BODY_FONT, size=10, bold=bold)
 
 
 def note(ws, cell, text):
     ws[cell] = text
-    ws[cell].font = Font(name=FONT, size=9, italic=True, color="7F7F7F")
+    ws[cell].font = Font(name=BODY_FONT, size=9, italic=True, color="7F7F7F")
+
+
+def calc(ws, cell, formula, fmt=None, bold=True):
+    ws[cell] = formula
+    ws[cell].font = Font(name=BODY_FONT, size=10, bold=bold)
+    ws[cell].border = BOX
+    if fmt:
+        ws[cell].number_format = fmt
 
 
 wb = openpyxl.Workbook()
 
-# =============================================================== INPUTS ======
-ws = wb.active
-ws.title = "INPUTS"
-ws.sheet_view.showGridLines = False
-ws.column_dimensions["A"].width = 42
-ws.column_dimensions["B"].width = 16
-ws.column_dimensions["C"].width = 62
+# ============================================================= INPUTS ========
+iw = wb.active
+iw.title = "INPUTS"
+iw.sheet_view.showGridLines = False
+iw.column_dimensions["A"].width = 6.6
+iw.column_dimensions["B"].width = 44
+iw.column_dimensions["C"].width = 15
+iw.column_dimensions["D"].width = 66
 
-title(ws, "A1", "CTC CONFERENCE P&L BUILDER  —  INPUTS", 16)
-note(ws, "A2", "Fill in the yellow cells only. Everything on the P&L tab "
-               "recalculates automatically. Scope of work is selected on the SCOPE tab.")
+titlebar(iw, 1, 2, 4, "CTC CONFERENCE P&L BUILDER  —  INPUTS")
+note(iw, "B2", "Type in the yellow cells only. Choose the scope of work on the SCOPE tab. "
+               "The P&L tab is all formulas — nothing to fill in there.")
 
-# --- 1. Event profile
-band(ws, 4, 1, 3, "1.  EVENT PROFILE")
-lab(ws, "A5", "Event / Client Name");            inp(ws, "B5", "New Conference 2027")
-lab(ws, "A6", "Event Dates (display text)");     inp(ws, "B6", "April 6-8, 2027")
-lab(ws, "A7", "Location");                       inp(ws, "B7", "Los Angeles, CA")
-lab(ws, "A8", "Attendees");                      inp(ws, "B8", 500, HRS)
-lab(ws, "A9", "Exhibitors");                     inp(ws, "B9", 60, HRS)
-lab(ws, "A10", "Sponsors");                      inp(ws, "B10", 20, HRS)
-lab(ws, "A11", "Speakers");                      inp(ws, "B11", 15, HRS)
-lab(ws, "A12", "Third-Party Items to Source");   inp(ws, "B12", 6, HRS)
-note(ws, "C8", "Drives Venue, Branding, Registration, F&B, Housing, Programming hours")
-note(ws, "C9", "Exhibit Management = exhibitors x 1 hour  (matches WTUI 200 & LCT 35 exactly)")
-note(ws, "C10", "Sponsorships = sponsors x 1.5 hours, minimum 15")
-note(ws, "C11", "Speaker Management = speakers x 1 hour, minimum 10")
-note(ws, "C12", "3rd Party Vendors = items x 5 hours (25-50 hr band)")
+band(iw, 4, 2, 4, "1.  EVENT PROFILE")
+lab(iw, "B5", "Event / Client Name");        inp(iw, "C5", "New Conference 2027")
+lab(iw, "B6", "Event Dates (display text)"); inp(iw, "C6", "April 6-8, 2027")
+lab(iw, "B7", "Location");                   inp(iw, "C7", "Los Angeles, CA")
 
-# --- 2. Schedule
-band(ws, 14, 1, 3, "2.  SCHEDULE")
-lab(ws, "A15", "Event Days");                    inp(ws, "B15", 3, HRS)
-lab(ws, "A16", "Set-Up / Load-In Days");         inp(ws, "B16", 1, HRS)
-lab(ws, "A17", "Travel Days");                   inp(ws, "B17", 0, HRS)
-lab(ws, "A18", "TOTAL ONSITE DAYS", bold=True)
-ws["B18"] = "=B15+B16+B17"
-lab(ws, "A19", "Months of Pre-Planning");        inp(ws, "B19", 9, HRS)
-lab(ws, "A20", "Planning Weeks", bold=True)
-ws["B20"] = "=ROUND(B19*4.33,0)"
-note(ws, "C17", "Travel days are paid but not billed at full onsite hours - see section 5")
-note(ws, "C19", "Months from contract/proposal to event day 1")
-note(ws, "C20", "Weekly meetings, document management and PM hours all key off this")
+band(iw, 9, 2, 4, "2.  EVENT SIZE")
+lab(iw, "B10", "Attendees");                     inp(iw, "C10", 500, HRS)
+lab(iw, "B11", "Exhibitors");                    inp(iw, "C11", 60, HRS)
+lab(iw, "B12", "Sponsors");                      inp(iw, "C12", 20, HRS)
+lab(iw, "B13", "Speakers");                      inp(iw, "C13", 15, HRS)
+lab(iw, "B14", "Third-Party Vendors to Source"); inp(iw, "C14", 5, HRS)
+lab(iw, "B15", "Site Visits");                   inp(iw, "C15", 1, HRS)
+note(iw, "D10", "Main driver of the Event Scale Index below")
+note(iw, "D11", "Exhibit Management bills at 1 hour per exhibitor")
+note(iw, "D12", "Sponsor Management bills at 1 hour per sponsor")
+note(iw, "D13", "Speaker Management bills at 1 hour per speaker, split prep / onsite")
+note(iw, "D14", "Third Party Vendors bills at 5 hours per vendor sourced")
+note(iw, "D15", "Site Visits bills at 10 hours each (travel, walk-through, write-up)")
 
-# --- 3. Staffing
-band(ws, 22, 1, 3, "3.  STAFFING  (headcount)")
-lab(ws, "A23", "ONSITE — Managers");             inp(ws, "B23", 3, HRS)
-lab(ws, "A24", "ONSITE — Coordinators");         inp(ws, "B24", 2, HRS)
-lab(ws, "A25", "PRE-PLANNING — Managers");       inp(ws, "B25", 1, HRS)
-lab(ws, "A26", "PRE-PLANNING — Coordinators");   inp(ws, "B26", 1, HRS)
-note(ws, "C23", "Onsite staff are costed PER PERSON - one line each on the P&L")
-note(ws, "C25", "Pre-planning is costed BY CATEGORY - headcount drives the weekly "
-                "meeting line and the workload check")
+band(iw, 17, 2, 4, "3.  SCHEDULE")
+lab(iw, "B18", "Event Days");             inp(iw, "C18", 3, HRS)
+lab(iw, "B19", "Set-Up / Load-In Days");  inp(iw, "C19", 1, HRS)
+lab(iw, "B20", "Travel Days");            inp(iw, "C20", 0, HRS)
+lab(iw, "B21", "TOTAL ONSITE DAYS", bold=True)
+calc(iw, "C21", "=C18+C19+C20", HRS)
+lab(iw, "B22", "Months of Pre-Planning"); inp(iw, "C22", 9, HRS)
+lab(iw, "B23", "Planning Weeks", bold=True)
+calc(iw, "C23", "=ROUND(C22*4.33,0)", HRS)
+lab(iw, "B24", "EVENT SCALE INDEX", bold=True)
+calc(iw, "C24",
+     "=ROUND((MAX(1,C10)/250)^(1/3)*(MAX(1,C22)/6)^(1/2)*(MAX(1,C18)/3)^(1/4),2)",
+     "0.00")
+for c in ("C21", "C23", "C24"):
+    iw[c].fill = PatternFill("solid", fgColor=GREY)
+note(iw, "D22", "Months from contract signature to day 1 of the event")
+note(iw, "D23", "Weekly meetings, the project management system and approvals key off this")
+note(iw, "D24", "Calculated, not typed. 1.00 = a 250-person, 3-day event with 6 months "
+                "of planning. Doubling attendance moves it about 26%, not 100%.")
 
-# --- 4. Rates
-band(ws, 28, 1, 3, "4.  RATES")
-lab(ws, "A29", "Manager — OUR COST / hr", bold=True);      inp(ws, "B29", 60, MONEY2)
-lab(ws, "A30", "Coordinator — OUR COST / hr", bold=True);  inp(ws, "B30", 42, MONEY2)
-lab(ws, "A31", "Manager — CLIENT RATE / hr (pre-planning)");   inp(ws, "B31", 90, MONEY2)
-lab(ws, "A32", "Coordinator — CLIENT RATE / hr (pre-planning)"); inp(ws, "B32", 65, MONEY2)
-lab(ws, "A33", "Manager — CLIENT RATE / hr (onsite)");     inp(ws, "B33", 100, MONEY2)
-lab(ws, "A34", "Coordinator — CLIENT RATE / hr (onsite)"); inp(ws, "B34", 65, MONEY2)
-lab(ws, "A35", "Overtime Multiplier");                     inp(ws, "B35", 1.5, "0.00\"x\"")
-note(ws, "C29", "Set by CTC. Applies to every manager hour, onsite and pre-planning.")
-note(ws, "C30", "Set by CTC. Applies to every coordinator hour, onsite and pre-planning.")
-note(ws, "C31", "Historical standard: PM $90 / EC $65 pre-planning; PM $100 onsite")
-note(ws, "C35", "Coordinator OT billed at 1.5x ($97.50) and costed at 1.5x - matches all 3 prior P&Ls")
+band(iw, 26, 2, 4, "4.  STAFFING  (headcount)")
+lab(iw, "B27", "ONSITE — Managers");           inp(iw, "C27", 3, HRS)
+lab(iw, "B28", "ONSITE — Coordinators");       inp(iw, "C28", 2, HRS)
+lab(iw, "B29", "PRE-PLANNING — Managers");     inp(iw, "C29", 1, HRS)
+lab(iw, "B30", "PRE-PLANNING — Coordinators"); inp(iw, "C30", 1, HRS)
+note(iw, "D27", "Onsite staff are costed PER PERSON — one line each on the P&L")
+note(iw, "D29", "Pre-planning is costed BY CATEGORY. Headcount sets the weekly meeting "
+                "rate and the workload check on the P&L.")
 
-# --- 5. Onsite hours per day
-band(ws, 37, 1, 3, "5.  ONSITE HOURS PER DAY")
-lab(ws, "A38", "Manager hours per onsite day");            inp(ws, "B38", 12, HRS)
-lab(ws, "A39", "Coordinator REGULAR hours per onsite day"); inp(ws, "B39", 8, HRS)
-lab(ws, "A40", "Coordinator OVERTIME hours per onsite day"); inp(ws, "B40", 2, HRS)
-lab(ws, "A41", "Hours per travel day");                    inp(ws, "B41", 8, HRS)
-note(ws, "C38", "AFCI billed 12 hrs/day x 4 days = 48. WTUI 10 hrs/day x 5 = 50.")
-note(ws, "C39", "AFCI & WTUI both: 8 regular + 2 OT per coordinator per day.")
+band(iw, 32, 2, 4, "5.  RATES")
+lab(iw, "B33", "Manager — OUR COST / hr", bold=True);     inp(iw, "C33", 60, RATE)
+lab(iw, "B34", "Coordinator — OUR COST / hr", bold=True); inp(iw, "C34", 42, RATE)
+lab(iw, "B35", "Manager — CLIENT RATE / hr (pre-planning)");     inp(iw, "C35", 90, RATE)
+lab(iw, "B36", "Coordinator — CLIENT RATE / hr (pre-planning)"); inp(iw, "C36", 65, RATE)
+lab(iw, "B37", "Manager — CLIENT RATE / hr (onsite)");     inp(iw, "C37", 100, RATE)
+lab(iw, "B38", "Coordinator — CLIENT RATE / hr (onsite)"); inp(iw, "C38", 65, RATE)
+lab(iw, "B39", "Overtime Multiplier");                     inp(iw, "C39", 1.5, '0.00"x"')
+note(iw, "D33", "Applies to every manager hour, pre-planning and onsite")
+note(iw, "D34", "Applies to every coordinator hour, pre-planning and onsite")
+note(iw, "D39", "Coordinator overtime is billed and costed at 1.5x")
 
-# --- 6. Overhead, fees, discounts
-band(ws, 43, 1, 3, "6.  OVERHEAD, FEES & DISCOUNTS")
-lab(ws, "A44", "Staff Overhead per hour", bold=True);      inp(ws, "B44", 0.61, MONEY2)
-lab(ws, "A45", "Admin Fee %", bold=True);                  inp(ws, "B45", 0.02, "0.0%")
-lab(ws, "A46", "Multi-Year Discount %");                   inp(ws, "B46", 0.05, "0.0%")
-lab(ws, "A47", "Apply Multi-Year Discount?");              inp(ws, "B47", "No")
-note(ws, "C44", "$0.61 x every CTC staff hour (pre-planning + onsite + OT). A cost, not billed.")
-note(ws, "C45", "2% of the client subtotal (pre-planning + onsite). Added to the client price.")
-note(ws, "C46", "The '5% off additional years' line used on NICA and WTUI.")
+band(iw, 41, 2, 4, "6.  ONSITE HOURS PER DAY")
+lab(iw, "B42", "Manager hours per onsite day");             inp(iw, "C42", 12, HRS)
+lab(iw, "B43", "Coordinator REGULAR hours per onsite day"); inp(iw, "C43", 8, HRS)
+lab(iw, "B44", "Coordinator OVERTIME hours per onsite day");inp(iw, "C44", 2, HRS)
+lab(iw, "B45", "Hours per travel day");                     inp(iw, "C45", 8, HRS)
+note(iw, "D42", "Applied to event days + set-up days")
+note(iw, "D43", "Coordinators run 8 regular + 2 overtime on a normal show day")
 
-# --- 7. Onsite role titles
-band(ws, 49, 1, 3, "7.  ONSITE ROLE TITLES")
-note(ws, "C50", "Only the first N rows are used, where N = the headcount in section 3. "
-                "Titles are cosmetic; rates come from section 4.")
-lab(ws, "A50", "ONSITE MANAGERS", bold=True)
-mgr_defaults = ["Project Manager", "Event Manager", "Executive Producer",
-                "Registration Manager", "Housing / Expo Manager",
-                "Production Manager", "Manager 7", "Manager 8",
-                "Manager 9", "Manager 10"]
-for i, t in enumerate(mgr_defaults):
-    lab(ws, f"A{51+i}", f"   Manager {i+1}")
-    inp(ws, f"B{51+i}", t)
+band(iw, 47, 2, 4, "7.  OVERHEAD, FEES & DISCOUNTS")
+lab(iw, "B48", "Staff Overhead per hour", bold=True); inp(iw, "C48", 0.61, RATE)
+lab(iw, "B49", "Admin Fee %", bold=True);             inp(iw, "C49", 0.02, "0.0%")
+lab(iw, "B50", "Multi-Year Discount %");              inp(iw, "C50", 0.05, "0.0%")
+lab(iw, "B51", "Apply Multi-Year Discount?");         inp(iw, "C51", "No")
+note(iw, "D48", "Charged against every CTC staff hour. A cost to us — not billed.")
+note(iw, "D49", "2% of the client subtotal, added to the client price. No cost against it.")
+note(iw, "D50", "The '5% off additional years' line, off unless switched on below.")
 
-lab(ws, "A62", "ONSITE COORDINATORS", bold=True)
-coord_defaults = ["Event Coordinator", "Registration Coordinator",
-                  "Office Manager", "Production Assistant",
-                  "Exhibit Coordinator", "Housing Coordinator",
-                  "Coordinator 7", "Coordinator 8",
-                  "Coordinator 9", "Coordinator 10"]
-for i, t in enumerate(coord_defaults):
-    lab(ws, f"A{63+i}", f"   Coordinator {i+1}")
-    inp(ws, f"B{63+i}", t)
+band(iw, 53, 2, 4, "8.  ONSITE ROLE TITLES")
+note(iw, "D54", "Only the first N lines are used, where N is the headcount in section 4. "
+                "Titles are labels only — rates come from section 5.")
+lab(iw, "B54", "ONSITE MANAGERS", bold=True)
+MGR_ROW1 = 55
+for i, t in enumerate(["Project Manager", "Event Manager", "Executive Producer",
+                       "Registration Manager", "Housing / Expo Manager",
+                       "Production Manager", "Manager 7", "Manager 8",
+                       "Manager 9", "Manager 10"]):
+    lab(iw, f"B{MGR_ROW1+i}", f"    Manager {i+1}")
+    inp(iw, f"C{MGR_ROW1+i}", t)
 
-# formula cells styled
-for c in ("B18", "B20"):
-    ws[c].font = Font(name=FONT, size=10, bold=True)
-    ws[c].number_format = HRS
-    ws[c].border = BOX
+CRD_ROW1 = 66
+lab(iw, f"B{CRD_ROW1-1}", "ONSITE COORDINATORS", bold=True)
+for i, t in enumerate(["Event Coordinator", "Registration Coordinator",
+                       "Office Manager", "Production Assistant",
+                       "Exhibit Coordinator", "Housing Coordinator",
+                       "Coordinator 7", "Coordinator 8",
+                       "Coordinator 9", "Coordinator 10"]):
+    lab(iw, f"B{CRD_ROW1+i}", f"    Coordinator {i+1}")
+    inp(iw, f"C{CRD_ROW1+i}", t)
 
-dv_yn = DataValidation(type="list", formula1='"Yes,No"', allow_blank=False)
-ws.add_data_validation(dv_yn)
-dv_yn.add(ws["B47"])
+dv = DataValidation(type="list", formula1='"Yes,No"', allow_blank=False)
+iw.add_data_validation(dv)
+dv.add(iw["C51"])
+iw.freeze_panes = "A5"
 
-ws.freeze_panes = "A5"
+# INPUTS cell shortcuts used everywhere below
+N = "INPUTS!$C$"
+ATT, EXH, SPO, SPK, VEN, SIT = N+"10", N+"11", N+"12", N+"13", N+"14", N+"15"
+EVD, SETD, TRVD, ONSD = N+"18", N+"19", N+"20", N+"21"
+MONTHS, WEEKS, ESI = N+"22", N+"23", N+"24"
+ON_M, ON_C, PRE_M, PRE_C = N+"27", N+"28", N+"29", N+"30"
+R_MGR, R_CRD = N+"33", N+"34"
+R_MGR_CL, R_CRD_CL = N+"35", N+"36"
+R_MGR_ON, R_CRD_ON, OT_X = N+"37", N+"38", N+"39"
+H_MGR, H_CRD, H_OT, H_TRV = N+"42", N+"43", N+"44", N+"45"
+OVH, FEE, DISC, DISC_ON = N+"48", N+"49", N+"50", N+"51"
 
-# ================================================================ SCOPE ======
-sc = wb.create_sheet("SCOPE")
-sc.sheet_view.showGridLines = False
+# ============================================================== SCOPE ========
+# (top level, sub-item, staff, driver kind, weight, driver text)
+S_ = "SCALE"; W_ = "WEEKS"; C_ = "COUNT"
+SCOPE = [
+ ("PLANNING, TIMELINE & COMMUNICATIONS", "Project Management System (ClickUp & Google Drive)",
+  "Coordinator", W_, 1.0, "1 hr per planning week"),
+ ("PLANNING, TIMELINE & COMMUNICATIONS", "Meetings, Minutes & Agendas",
+  "Team", W_, 1.0, "1 hr per planning week, whole team"),
+ ("PLANNING, TIMELINE & COMMUNICATIONS", "Roles & Responsibilities",
+  "Manager", S_, 5, "5 x scale index"),
+ ("PLANNING, TIMELINE & COMMUNICATIONS", "Communication & Approvals",
+  "Manager", W_, 1.0, "1 hr per planning week"),
 
-# item, category, driver description, driver formula, LCT, AFCI, WTUI
-I = "INPUTS!"
-SCOPE_ITEMS = [
-    ("Planning, Timeline & Communications", "Manager",
-     "8 hrs per 3 onsite days", f"=8*ROUNDUP({I}$B$18/3,0)", 8, 16, 15),
-    ("Meetings & Agendas", "Team",
-     "1 per week x planning weeks", f"={I}$B$20", 18, 36, 39),
-    ("Document Management (Admin Hours)", "Coordinator",
-     "1 per week x planning weeks", f"={I}$B$20", 15, 36, 39),
-    ("Project Management (PM Hours)", "Manager",
-     "1 per week x planning weeks", f"={I}$B$20", 15, 36, 39),
-    ("Venue Management: Logistics, Meeting Space", "Manager",
-     "5% of attendees (20-75 hrs)", f"=ROUND(MEDIAN(20,0.05*{I}$B$8,75),0)", 20, 35, 70),
-    ("Event Branding: Attendee Experience, Signage, Decor", "Manager",
-     "5% of attendees (18-55 hrs)", f"=ROUND(MEDIAN(18,0.05*{I}$B$8,55),0)", 18, 25, 50),
-    ("Registration: Onsite Check-In Only", "Coordinator",
-     "3% of attendees (16-40 hrs)", f"=ROUND(MEDIAN(16,0.03*{I}$B$8,40),0)", 16, None, None),
-    ("Registration: Online Build-Out + Onsite", "Coordinator",
-     "6% of attendees (30-150 hrs)", f"=ROUND(MEDIAN(30,0.06*{I}$B$8,150),0)", None, 30, 90),
-    ("Food & Beverage", "Manager",
-     "3% of attendees (18-45 hrs)", f"=ROUND(MEDIAN(18,0.03*{I}$B$8,45),0)", 18, None, 45),
-    ("Housing Logistics: Room Blocks, Reports, Overflow", "Coordinator",
-     "3.5% of attendees (20-50 hrs)", f"=ROUND(MEDIAN(20,0.035*{I}$B$8,50),0)", None, None, 50),
-    ("Programming: Audio Visual, Talent, Entertainment", "Manager",
-     "5% of attendees (12-65 hrs)", f"=ROUND(MEDIAN(12,0.05*{I}$B$8,65),0)", 12, 65, 65),
-    ("Exhibit Management", "Manager",
-     "exhibitors x 1 hr", f"={I}$B$9*1", 35, 65, 200),
-    ("Sponsorships: Opportunities & Sponsor Management", "Coordinator",
-     "sponsors x 1.5 hrs, min 15", f"=ROUND(MAX(15,{I}$B$10*1.5),0)", None, 30, 75),
-    ("Speaker Management: Prep & Onsite", "Coordinator",
-     "speakers x 1 hr, min 10", f"=ROUND(MAX(10,{I}$B$11*1),0)", 25, None, None),
-    ("Third Party Vendors", "Coordinator",
-     "sourcing items x 5 hrs (25-50)", f"=ROUND(MEDIAN(25,{I}$B$12*5,50),0)", 30, 25, 50),
-    ("Financial Management", "Manager",
-     "planning months x 2 hrs", f"={I}$B$19*2", None, 18, None),
-    ("Event Marketing: Strategy, Social, Email, Messaging", "Manager",
-     "planning months x 6 hrs (30-60)", f"=ROUND(MEDIAN(30,{I}$B$19*6,60),0)", None, None, 60),
-    ("Staff Management: Temporary Staff & Volunteers", "Manager",
-     "10 hrs + 1 per event day, max 15", f"=MIN(15,10+{I}$B$15)", 10, None, 15),
-    ("Reception / Tournament / Special Event Planning", "Coordinator",
-     "planning months x 3 hrs (15-50)", f"=ROUND(MEDIAN(15,{I}$B$19*3,50),0)", 15, None, 50),
-    ("Post-Event: Reporting, Reconciliation, Debrief", "Manager",
-     "8 hrs per 3 onsite days", f"=8*ROUNDUP({I}$B$18/3,0)", 8, 15, 20),
-    ("ENHANCEMENT: Graphic Design (web, signage, branding)", "Manager",
-     "flat 55 hrs", "=55", None, 65, 55),
-    ("ENHANCEMENT: Mobile App", "Manager",
-     "flat 60 hrs", "=60", None, None, 60),
-    ("Stage Production & Scripting", "Manager",
-     "flat 30 hrs", "=30", None, None, 30),
-    ("Venue Sourcing — Future Year (RFP, analysis, contracts)", "Manager",
-     "flat 45 hrs", "=45", None, None, 45),
-    ("Site Visits", "Manager",
-     "flat 20 hrs", "=20", None, None, 20),
+ ("VENUE SOURCING", "Request for Proposal", "Manager", S_, 6, "6 x scale index"),
+ ("VENUE SOURCING", "Venue/Hotel Analysis", "Manager", S_, 6, "6 x scale index"),
+ ("VENUE SOURCING", "Site Visits", "Manager", C_+":"+SIT, 10, "10 hrs per site visit"),
+ ("VENUE SOURCING", "Contract Negotiations", "Manager", S_, 5, "5 x scale index"),
+
+ ("VENUE MANAGEMENT", "Venue Logistics", "Manager", S_, 16, "16 x scale index"),
+ ("VENUE MANAGEMENT", "Meeting Space", "Manager", S_, 10, "10 x scale index"),
+
+ ("EVENT BRANDING", "Attendee Experience", "Manager", S_, 7, "7 x scale index"),
+ ("EVENT BRANDING", "Signage", "Manager", S_, 14, "14 x scale index"),
+ ("EVENT BRANDING", "Décor", "Manager", S_, 8, "8 x scale index"),
+ ("EVENT BRANDING", "Graphic Design (add-on)", "Manager", S_, 26, "26 x scale index"),
+
+ ("FOOD & BEVERAGE", "Food & Beverage Management", "Manager", S_, 22, "22 x scale index"),
+
+ ("REGISTRATION", "Online Registration / Build-Out", "Coordinator", S_, 35, "35 x scale index"),
+ ("REGISTRATION", "Onsite Registration", "Coordinator", S_, 18, "18 x scale index"),
+ ("REGISTRATION", "Mobile App", "Coordinator", S_, 25, "25 x scale index"),
+
+ ("SWAG BAG", "Swag Bag Sourcing, Assembly & Distribution", "Coordinator", S_, 20,
+  "20 x scale index"),
+
+ ("HOUSING LOGISTICS", "Room Blocks", "Coordinator", S_, 8, "8 x scale index"),
+ ("HOUSING LOGISTICS", "Housing Reports", "Coordinator", S_, 4, "4 x scale index"),
+ ("HOUSING LOGISTICS", "Concession Management", "Coordinator", S_, 3, "3 x scale index"),
+ ("HOUSING LOGISTICS", "Attendee Liaison", "Coordinator", S_, 5, "5 x scale index"),
+ ("HOUSING LOGISTICS", "Overflow Hotel Sourcing", "Coordinator", S_, 3, "3 x scale index"),
+
+ ("THIRD PARTY VENDORS", "Vendors", "Coordinator", C_+":"+VEN, 5, "5 hrs per vendor sourced"),
+ ("THIRD PARTY VENDORS", "Photographer / Videographer", "Coordinator", S_, 10,
+  "10 x scale index"),
+
+ ("STAFF MANAGEMENT", "Temporary Staff", "Manager", S_, 5, "5 x scale index"),
+ ("STAFF MANAGEMENT", "Volunteers", "Manager", S_, 4, "4 x scale index"),
+
+ ("VIP & PRESS LOGISTICS", "VIPs", "Coordinator", S_, 12, "12 x scale index"),
+ ("VIP & PRESS LOGISTICS", "Press Logistics", "Coordinator", S_, 8, "8 x scale index"),
+
+ ("SPONSORSHIPS", "Sponsorship Opportunities", "Coordinator", S_, 8, "8 x scale index"),
+ ("SPONSORSHIPS", "Sponsor Management", "Coordinator", C_+":"+SPO, 1.0, "1 hr per sponsor"),
+
+ ("SPEAKER MANAGEMENT", "Speaker Prep", "Coordinator", C_+":"+SPK, 0.7,
+  "0.7 hrs per speaker"),
+ ("SPEAKER MANAGEMENT", "Speaker Management Onsite", "Coordinator", C_+":"+SPK, 0.3,
+  "0.3 hrs per speaker"),
+
+ ("PROGRAMMING", "Audio Visual", "Manager", S_, 18, "18 x scale index"),
+ ("PROGRAMMING", "Stage Production", "Manager", S_, 15, "15 x scale index"),
+ ("PROGRAMMING", "Entertainment & Talent", "Manager", S_, 8, "8 x scale index"),
+ ("PROGRAMMING", "Recording & Broadcast — Pre-Event Coordination", "Manager", S_, 8,
+  "8 x scale index"),
+ ("PROGRAMMING", "Recording & Broadcast — Onsite Support", "Manager", S_, 10,
+  "10 x scale index"),
+
+ ("RECEPTION PLANNING", "Concept & Strategy", "Coordinator", S_, 3, "3 x scale index"),
+ ("RECEPTION PLANNING", "Venue & Layout", "Coordinator", S_, 4, "4 x scale index"),
+ ("RECEPTION PLANNING", "Food & Beverage", "Coordinator", S_, 4, "4 x scale index"),
+ ("RECEPTION PLANNING", "Entertainment & Atmosphere", "Coordinator", S_, 3, "3 x scale index"),
+ ("RECEPTION PLANNING", "Guest Experience", "Coordinator", S_, 3, "3 x scale index"),
+ ("RECEPTION PLANNING", "Staffing & Logistics", "Coordinator", S_, 3, "3 x scale index"),
+ ("RECEPTION PLANNING", "Capture & Follow-Up", "Coordinator", S_, 2, "2 x scale index"),
+
+ ("FINANCIAL MANAGEMENT", "Budgets, Reporting & Billing", "Manager", S_, 12,
+  "12 x scale index"),
+
+ ("EVENT MARKETING", "Strategy & Timeline", "Manager", S_, 8, "8 x scale index"),
+ ("EVENT MARKETING", "Social Media & Email Campaigns", "Manager", S_, 9, "9 x scale index"),
+ ("EVENT MARKETING", "Messaging", "Manager", S_, 5, "5 x scale index"),
+ ("EVENT MARKETING", "Marketing Assistance", "Manager", S_, 5, "5 x scale index"),
+
+ ("EXHIBIT MANAGEMENT", "Exhibitor Planning & Onsite Execution", "Manager",
+  C_+":"+EXH, 1.0, "1 hr per exhibitor"),
+
+ ("POST-EVENT", "Debrief, Reporting & Recommendations", "Manager", S_, 10,
+  "10 x scale index"),
+
+ ("TOURNAMENTS", "Venue Booking & Coordination", "Coordinator", S_, 7, "7 x scale index"),
+ ("TOURNAMENTS", "Registration & Communications", "Coordinator", S_, 8, "8 x scale index"),
+ ("TOURNAMENTS", "Check-In & Onsite Management", "Coordinator", S_, 7, "7 x scale index"),
 ]
 
-DEFAULT_ON = {
-    "Planning, Timeline & Communications", "Meetings & Agendas",
-    "Document Management (Admin Hours)", "Project Management (PM Hours)",
-    "Venue Management: Logistics, Meeting Space",
-    "Event Branding: Attendee Experience, Signage, Decor",
-    "Registration: Online Build-Out + Onsite", "Food & Beverage",
-    "Programming: Audio Visual, Talent, Entertainment", "Exhibit Management",
-    "Sponsorships: Opportunities & Sponsor Management",
-    "Third Party Vendors", "Financial Management",
-    "Staff Management: Temporary Staff & Volunteers",
-    "Post-Event: Reporting, Reconciliation, Debrief",
+DEFAULT_YES = {
+    "PLANNING, TIMELINE & COMMUNICATIONS", "VENUE MANAGEMENT", "EVENT BRANDING",
+    "FOOD & BEVERAGE", "REGISTRATION", "THIRD PARTY VENDORS", "STAFF MANAGEMENT",
+    "SPONSORSHIPS", "PROGRAMMING", "FINANCIAL MANAGEMENT", "EXHIBIT MANAGEMENT",
+    "POST-EVENT",
 }
+DEFAULT_NO_ITEMS = {"Graphic Design (add-on)", "Mobile App",
+                    "Recording & Broadcast — Pre-Event Coordination",
+                    "Recording & Broadcast — Onsite Support"}
 
-FIRST = 4
-LAST = FIRST + len(SCOPE_ITEMS) - 1
+TOPS = []
+for t, *_ in SCOPE:
+    if t not in TOPS:
+        TOPS.append(t)
 
-title(sc, "A1", "SCOPE OF WORK LIBRARY  —  turn line items on and off here", 14)
-note(sc, "A2", "Set INCLUDE? to Yes/No for each line. Hours calculate from the INPUTS tab; "
-               "type a number in OVERRIDE HOURS to force a different number for any line.")
+sc = wb.create_sheet("SCOPE")
+sc.sheet_view.showGridLines = False
+F1 = 4
+FN = F1 + len(SCOPE) - 1
 
-headers(sc, 3, 1, ["#", "SCOPE OF WORK ITEM", "STAFF\nCATEGORY", "INCLUDE?",
-                   "HOW THE HOURS ARE CALCULATED", "CALC.\nHOURS",
-                   "OVERRIDE\nHOURS", "HOURS\nUSED", "CLIENT\nRATE",
-                   "OUR\nRATE", "CLIENT\nCOST", "OUR\nCOST",
-                   "LCT\n2026", "AFCI\n2027", "WTUI\n2027", "SEQ"])
+titlebar(sc, 1, 1, 13, "SCOPE OF WORK  —  matches the 2026 Master Proposal Template")
+note(sc, "B2", "Set INCLUDE? on every line. Hours calculate from the INPUTS tab; type a "
+               "number into OVERRIDE HOURS to force a line. The P&L rolls these up to the "
+               "top-level headings.")
+headers(sc, 3, 1, ["#", "SCOPE OF WORK ITEM", "TOP-LEVEL HEADING", "STAFF",
+                   "INCLUDE?", "HOW THE HOURS ARE CALCULATED", "CALC.\nHOURS",
+                   "OVERRIDE\nHOURS", "HOURS\nUSED", "CLIENT\nRATE", "OUR\nRATE",
+                   "CLIENT\nCOST", "OUR\nCOST"])
+sc.row_dimensions[3].height = 32
 
-dv_scope = DataValidation(type="list", formula1='"Yes,No"', allow_blank=False)
-sc.add_data_validation(dv_scope)
+dvs = DataValidation(type="list", formula1='"Yes,No"', allow_blank=False)
+sc.add_data_validation(dvs)
 
-for n, (item, cat, drv_txt, drv_f, lct, afci, wtui) in enumerate(SCOPE_ITEMS):
-    r = FIRST + n
+for n, (top, item, staff, kind, wgt, dtext) in enumerate(SCOPE):
+    r = F1 + n
+    if kind == S_:
+        f = f"=ROUND({wgt}*{ESI},0)"
+    elif kind == W_:
+        f = f"=ROUND({wgt}*{WEEKS},0)"
+    else:
+        f = f"=ROUND({wgt}*{kind.split(':')[1]},0)"
+    on = (top in DEFAULT_YES) and (item not in DEFAULT_NO_ITEMS)
     sc.cell(row=r, column=1, value=n + 1).number_format = "0"
-    sc.cell(row=r, column=2, value=item)
-    sc.cell(row=r, column=3, value=cat)
-    c = sc.cell(row=r, column=4, value="Yes" if item in DEFAULT_ON else "No")
-    c.fill = PatternFill("solid", fgColor=YELLOW)
-    c.font = Font(name=FONT, size=10, bold=True, color=BLUE_TXT)
-    dv_scope.add(c)
-    sc.cell(row=r, column=5, value=drv_txt)
-    sc.cell(row=r, column=6, value=drv_f).number_format = HRS
-    o = sc.cell(row=r, column=7)
-    o.fill = PatternFill("solid", fgColor=YELLOW)
-    o.font = Font(name=FONT, size=10, bold=True, color=BLUE_TXT)
+    sc.cell(row=r, column=2, value=f"{top}: {item}")
+    sc.cell(row=r, column=3, value=top)
+    sc.cell(row=r, column=4, value=staff)
+    c = sc.cell(row=r, column=5, value="Yes" if on else "No")
+    c.fill = PatternFill("solid", fgColor=INPUT_FILL)
+    c.font = Font(name=BODY_FONT, size=10, bold=True, color=INPUT_TXT)
+    dvs.add(c)
+    sc.cell(row=r, column=6, value=dtext)
+    sc.cell(row=r, column=7, value=f).number_format = HRS
+    o = sc.cell(row=r, column=8)
+    o.fill = PatternFill("solid", fgColor=INPUT_FILL)
+    o.font = Font(name=BODY_FONT, size=10, bold=True, color=INPUT_TXT)
     o.number_format = HRS
-    sc.cell(row=r, column=8,
-            value=f"=IF(ISNUMBER(G{r}),G{r},F{r})").number_format = HRS
-    sc.cell(row=r, column=9, value=(
-        f'=IF(C{r}="Manager",{I}$B$31,'
-        f'IF(C{r}="Coordinator",{I}$B$32,'
-        f'{I}$B$25*{I}$B$31+{I}$B$26*{I}$B$32))')).number_format = MONEY2
+    sc.cell(row=r, column=9,
+            value=f"=IF(ISNUMBER(H{r}),H{r},G{r})").number_format = HRS
     sc.cell(row=r, column=10, value=(
-        f'=IF(C{r}="Manager",{I}$B$29,'
-        f'IF(C{r}="Coordinator",{I}$B$30,'
-        f'{I}$B$25*{I}$B$29+{I}$B$26*{I}$B$30))')).number_format = MONEY2
-    sc.cell(row=r, column=11,
-            value=f'=IF(D{r}="Yes",H{r}*I{r},0)').number_format = MONEY
+        f'=IF(D{r}="Manager",{R_MGR_CL},IF(D{r}="Coordinator",{R_CRD_CL},'
+        f'{PRE_M}*{R_MGR_CL}+{PRE_C}*{R_CRD_CL}))')).number_format = RATE
+    sc.cell(row=r, column=11, value=(
+        f'=IF(D{r}="Manager",{R_MGR},IF(D{r}="Coordinator",{R_CRD},'
+        f'{PRE_M}*{R_MGR}+{PRE_C}*{R_CRD}))')).number_format = RATE
     sc.cell(row=r, column=12,
-            value=f'=IF(D{r}="Yes",H{r}*J{r},0)').number_format = MONEY
-    for col, val in ((13, lct), (14, afci), (15, wtui)):
-        cc = sc.cell(row=col and r, column=col, value=val)
-        cc.number_format = HRS
-        cc.font = Font(name=FONT, size=9, italic=True, color="7F7F7F")
-    sc.cell(row=r, column=16,
-            value=f'=IF(D{r}="Yes",COUNTIF($D$4:D{r},"Yes"),"")')
-    for col in range(1, 17):
-        sc.cell(row=r, column=col).border = BOX
-        if col in (2, 3, 5):
-            sc.cell(row=r, column=col).font = Font(name=FONT, size=10)
-        sc.cell(row=r, column=col).alignment = Alignment(
-            wrap_text=(col in (2, 5)), vertical="center")
+            value=f'=IF(E{r}="Yes",I{r}*J{r},0)').number_format = MONEY
+    sc.cell(row=r, column=13,
+            value=f'=IF(E{r}="Yes",I{r}*K{r},0)').number_format = MONEY
+    for col in range(1, 14):
+        cell = sc.cell(row=r, column=col)
+        cell.border = BOX
+        if cell.font.name != BODY_FONT:
+            cell.font = Font(name=BODY_FONT, size=10)
+        cell.alignment = Alignment(wrap_text=(col in (2, 6)), vertical="center")
+    if n and SCOPE[n - 1][0] != top:            # first line of a new heading
+        for col in range(1, 14):
+            sc.cell(row=r, column=col).border = Border(
+                left=thin, right=thin, bottom=thin,
+                top=Side(style="medium", color="808080"))
 
-# scope totals
-TR = LAST + 1
-sc.cell(row=TR, column=2, value="TOTALS — INCLUDED SCOPE").font = Font(
-    name=FONT, size=10, bold=True)
-sc.cell(row=TR, column=8,
-        value=f'=SUMIF($D${FIRST}:$D${LAST},"Yes",$H${FIRST}:$H${LAST})')
-sc.cell(row=TR, column=11, value=f"=SUM(K{FIRST}:K{LAST})")
-sc.cell(row=TR, column=12, value=f"=SUM(L{FIRST}:L{LAST})")
-sc.cell(row=TR, column=8).number_format = HRS
-for col in (11, 12):
+TR = FN + 1
+sc.cell(row=TR, column=2, value="TOTAL — INCLUDED SCOPE")
+sc.cell(row=TR, column=9, value=f'=SUMIF($E${F1}:$E${FN},"Yes",$I${F1}:$I${FN})')
+sc.cell(row=TR, column=12, value=f"=SUM(L{F1}:L{FN})")
+sc.cell(row=TR, column=13, value=f"=SUM(M{F1}:M{FN})")
+sc.cell(row=TR, column=9).number_format = HRS
+for col in (12, 13):
     sc.cell(row=TR, column=col).number_format = MONEY
-for col in range(1, 17):
-    sc.cell(row=TR, column=col).border = DBL
-    sc.cell(row=TR, column=col).font = Font(name=FONT, size=10, bold=True)
+for col in range(1, 14):
+    cell = sc.cell(row=TR, column=col)
+    cell.border = DBL
+    cell.font = Font(name=BODY_FONT, size=10, bold=True)
+    cell.fill = PatternFill("solid", fgColor=PINK)
 
-note(sc, f"A{TR+2}",
-     "Grey italic columns M:O are the ACTUAL hours charged on the three most recent final "
-     "P&Ls — use them as a sanity check on the calculated hours.")
-note(sc, f"A{TR+3}",
-     "STAFF CATEGORY drives the rate: Manager = manager rates; Coordinator = coordinator "
-     "rates; Team = (pre-planning managers x manager rate) + (pre-planning coordinators x "
-     "coordinator rate), which is how the weekly meeting line has always been priced.")
+# --- rollup helper block (columns P:U)
+band(sc, 3, 16, 21, "TOP-LEVEL ROLL-UP  (feeds the P&L)")
+R1 = 4
+RN = R1 + len(TOPS) - 1
+for n, top in enumerate(TOPS):
+    r = R1 + n
+    sc.cell(row=r, column=16, value=top)
+    sc.cell(row=r, column=17, value=(
+        f'=SUMIFS($I${F1}:$I${FN},$C${F1}:$C${FN},$P{r},$E${F1}:$E${FN},"Yes")')
+    ).number_format = HRS
+    sc.cell(row=r, column=18, value=f"=SUMIF($C${F1}:$C${FN},$P{r},$L${F1}:$L${FN})"
+            ).number_format = MONEY
+    sc.cell(row=r, column=19, value=f"=SUMIF($C${F1}:$C${FN},$P{r},$M${F1}:$M${FN})"
+            ).number_format = MONEY
+    sc.cell(row=r, column=20,
+            value=f'=IF(Q{r}>0,COUNTIF($Q${R1}:Q{r},">0"),"")')
+    sc.cell(row=r, column=21, value=(
+        f'=IF(Q{r}=0,"",IF(SUMIFS($I${F1}:$I${FN},$C${F1}:$C${FN},$P{r},'
+        f'$E${F1}:$E${FN},"Yes",$D${F1}:$D${FN},"Manager")=Q{r},"PM",'
+        f'IF(SUMIFS($I${F1}:$I${FN},$C${F1}:$C${FN},$P{r},$E${F1}:$E${FN},"Yes",'
+        f'$D${F1}:$D${FN},"Coordinator")=Q{r},"EC","PM/EC")))'))
+    for col in range(16, 22):
+        cell = sc.cell(row=r, column=col)
+        cell.border = BOX
+        cell.font = Font(name=BODY_FONT, size=10)
+headers(sc, 3, 16, ["TOP-LEVEL HEADING", "HOURS", "CLIENT COST", "OUR COST",
+                    "SEQ", "STAFF"])
 
-widths = {1: 5, 2: 46, 3: 13, 4: 11, 5: 32, 6: 10, 7: 11, 8: 10, 9: 11,
-          10: 10, 11: 12, 12: 12, 13: 9, 14: 9, 15: 9, 16: 7}
-for col, w in widths.items():
+for col, w in {1: 5, 2: 52, 3: 34, 4: 12, 5: 10, 6: 30, 7: 9, 8: 10, 9: 9,
+               10: 10, 11: 9, 12: 12, 13: 12, 14: 3, 15: 3,
+               16: 34, 17: 9, 18: 13, 19: 13, 20: 6, 21: 8}.items():
     sc.column_dimensions[get_column_letter(col)].width = w
-sc.row_dimensions[3].height = 34
 sc.freeze_panes = "B4"
 
-# ================================================================== P&L ======
+# ================================================================ P&L ========
 pl = wb.create_sheet("P&L", 0)
 pl.sheet_view.showGridLines = False
+SS = "SCOPE!"
+SEQ = f"{SS}$T${R1}:$T${RN}"
 
-S = "SCOPE!"
-SEQ = f"{S}$P${FIRST}:$P${LAST}"
-
-# --- layout constants
-R_SUM_HDR = 5
 R_PRE, R_ON, R_OH, R_SUB, R_FEE, R_DISC, R_GT = 6, 7, 8, 9, 10, 11, 12
-R_CAT_HDR = 15
-R_CAT_M, R_CAT_C, R_CAT_T, R_CAT_TOT = 16, 17, 18, 19
-R_PRE_HDR = 22
-R_PRE_1 = 23
-R_PRE_N = R_PRE_1 + len(SCOPE_ITEMS) - 1        # 46
-R_PRE_TOT = R_PRE_N + 1                          # 47
-R_ON_HDR = R_PRE_TOT + 3                         # 50
-R_MGR_1 = R_ON_HDR + 1                           # 51
-R_CRD_1 = R_MGR_1 + 10                           # 61
-R_OT = R_CRD_1 + 10                              # 71
-R_ON_TOT = R_OT + 1                              # 72
-R_OH_HDR = R_ON_TOT + 3                          # 75
-R_OH_PRE, R_OH_ON, R_OH_TOT = R_OH_HDR + 1, R_OH_HDR + 2, R_OH_HDR + 3
+CAT_H = 15
+CAT_M, CAT_C, CAT_T, CAT_TOT = 16, 17, 18, 19
+EM_BAND, EM_H = 21, 22
+EM_1 = 23
+EM_N = EM_1 + len(TOPS) - 1
+EM_TOT = EM_N + 1
+ON_BAND = EM_TOT + 2
+ON_H = ON_BAND + 1
+M1 = ON_H + 1
+C1 = M1 + 10
+OT = C1 + 10
+ON_TOT = OT + 1
+OH_BAND = ON_TOT + 2
+OH_H = OH_BAND + 1
+OH_PRE, OH_ON, OH_TOT = OH_H + 1, OH_H + 2, OH_H + 3
 
-title(pl, "A1", "CONFERENCE P&L", 16)
-pl["C1"] = "=INPUTS!B5"
-pl["C1"].font = Font(name=FONT, size=16, bold=True, color=TEAL)
-pl["B2"] = '=INPUTS!B6&"   |   "&INPUTS!B7&"   |   "&TEXT(INPUTS!B18,"0")&' \
-           ' " onsite days   |   "&TEXT(INPUTS!B19,"0")&" months planning"'
-pl["B2"].font = Font(name=FONT, size=10, italic=True, color="595959")
+titlebar(pl, 1, 2, 10, "")
+pl["B1"] = "=INPUTS!C5"
+pl["B1"].font = Font(name=HEAD_FONT, size=14, bold=True, color=YELLOW_T)
+pl["B2"] = ('=INPUTS!C6&"   |   "&INPUTS!C7&"   |   "&TEXT(INPUTS!C18,"0")&'
+            '" event days + "&TEXT(INPUTS!C19,"0")&" set-up   |   "&'
+            'TEXT(INPUTS!C22,"0")&" months planning"')
+pl["B2"].font = Font(name=BODY_FONT, size=10, italic=True, color="595959")
 
-# ---- summary
+# --- proposal summary
 band(pl, 4, 2, 6, "PROPOSAL SUMMARY")
-headers(pl, R_SUM_HDR, 2, ["ITEM", "CLIENT COST", "OUR COST",
-                           "NET PROFIT", "% PROFIT"])
+headers(pl, 5, 2, ["ITEM", "CLIENT COST", "OUR COST", "NET PROFIT", "% Profit"], size=12)
 
-pl[f"B{R_PRE}"] = f'="Pre-Planning / Project Hours  ("&TEXT(E{R_PRE_TOT},"#,##0")&" hrs)"'
-pl[f"C{R_PRE}"] = f"=F{R_PRE_TOT}"
-pl[f"D{R_PRE}"] = f"=I{R_PRE_TOT}"
-
-pl[f"B{R_ON}"] = f'="Onsite Management  ("&TEXT(E{R_ON_TOT},"#,##0")&" hrs)"'
-pl[f"C{R_ON}"] = f"=F{R_ON_TOT}"
-pl[f"D{R_ON}"] = f"=I{R_ON_TOT}"
-
-pl[f"B{R_OH}"] = f'="Staff Overhead  ("&TEXT(INPUTS!$B$44,"$0.00")&" / staff hour)"'
+pl[f"B{R_PRE}"] = f'="Project Hours  ("&TEXT(D{EM_TOT},"#,##0")&")"'
+pl[f"C{R_PRE}"] = f"=E{EM_TOT}"
+pl[f"D{R_PRE}"] = f"=H{EM_TOT}"
+pl[f"B{R_ON}"] = f'="Onsite Management  ("&TEXT(D{ON_TOT},"#,##0")&")"'
+pl[f"C{R_ON}"] = f"=E{ON_TOT}"
+pl[f"D{R_ON}"] = f"=H{ON_TOT}"
+pl[f"B{R_OH}"] = f'="Staff Overhead  ("&TEXT({OVH},"$0.00")&" / staff hour)"'
 pl[f"C{R_OH}"] = 0
-pl[f"D{R_OH}"] = f"=E{R_OH_TOT}"
-
+pl[f"D{R_OH}"] = f"=E{OH_TOT}"
 for r in (R_PRE, R_ON, R_OH):
     pl[f"E{r}"] = f"=C{r}-D{r}"
     pl[f"F{r}"] = f'=IF(C{r}=0,"",E{r}/C{r})'
 
-pl[f"B{R_SUB}"] = "SUBTOTAL"
+pl[f"B{R_SUB}"] = "TOTALS"
 for col in "CDE":
     pl[f"{col}{R_SUB}"] = f"=SUM({col}{R_PRE}:{col}{R_OH})"
 pl[f"F{R_SUB}"] = f'=IF(C{R_SUB}=0,"",E{R_SUB}/C{R_SUB})'
 
-pl[f"B{R_FEE}"] = '="Admin Fee  ("&TEXT(INPUTS!$B$45,"0.0%")&" of client subtotal)"'
-pl[f"C{R_FEE}"] = f"=C{R_SUB}*INPUTS!$B$45"
+pl[f"B{R_FEE}"] = f'="Admin Fee  ("&TEXT({FEE},"0.0%")&")"'
+pl[f"C{R_FEE}"] = f"=C{R_SUB}*{FEE}"
 pl[f"D{R_FEE}"] = 0
 pl[f"E{R_FEE}"] = f"=C{R_FEE}-D{R_FEE}"
-pl[f"F{R_FEE}"] = ""
-
-pl[f"B{R_DISC}"] = '="Less Multi-Year Discount  ("&TEXT(INPUTS!$B$46,"0.0%")&")"'
-pl[f"C{R_DISC}"] = (f'=-IF(INPUTS!$B$47="Yes",(C{R_SUB}+C{R_FEE})*INPUTS!$B$46,0)')
+pl[f"B{R_DISC}"] = f'="Less Multi-Year Discount  ("&TEXT({DISC},"0.0%")&")"'
+pl[f"C{R_DISC}"] = f'=-IF({DISC_ON}="Yes",(C{R_SUB}+C{R_FEE})*{DISC},0)'
 pl[f"D{R_DISC}"] = 0
 pl[f"E{R_DISC}"] = f"=C{R_DISC}-D{R_DISC}"
-
 pl[f"B{R_GT}"] = "GRAND TOTAL"
 for col in "CDE":
     pl[f"{col}{R_GT}"] = f"=SUM({col}{R_SUB}:{col}{R_DISC})"
@@ -450,374 +517,234 @@ for r in range(R_PRE, R_GT + 1):
     for col in "BCDEF":
         cell = pl[f"{col}{r}"]
         cell.border = BOX
-        cell.font = Font(name=FONT, size=10,
-                         bold=(r in (R_SUB, R_GT)))
-        if col in "CDE":
-            cell.number_format = MONEY
-        if col == "F":
-            cell.number_format = PCT
-    if r in (R_SUB, R_GT):
-        for col in "BCDEF":
-            pl[f"{col}{r}"].fill = PatternFill("solid", fgColor=GREY)
+        cell.font = Font(name=BODY_FONT, size=12 if r in (R_SUB, R_GT) else 10,
+                         bold=r in (R_SUB, R_GT))
+        cell.number_format = MONEY if col in "CDE" else (PCT if col == "F" else "General")
+        if r in (R_SUB, R_GT):
+            cell.fill = PatternFill("solid", fgColor=PINK)
 for col in "BCDEF":
     pl[f"{col}{R_GT}"].border = DBL
-    pl[f"{col}{R_GT}"].font = Font(name=FONT, size=11, bold=True, color=NAVY)
 
-# ---- pre-planning hours by category
+# --- pre-planning by category
 band(pl, 14, 2, 7, "PRE-PLANNING HOURS BY STAFF CATEGORY")
-headers(pl, R_CAT_HDR, 2, ["CATEGORY", "HOURS", "OUR RATE / HR", "OUR COST",
-                           "STAFF COUNT", "HRS / PERSON / WEEK"])
-
-cat_rows = [
-    (R_CAT_M, "Managers", "Manager", "INPUTS!$B$29", "INPUTS!$B$25"),
-    (R_CAT_C, "Coordinators", "Coordinator", "INPUTS!$B$30", "INPUTS!$B$26"),
-]
-for r, label_, key, rate, cnt in cat_rows:
-    pl[f"B{r}"] = label_
-    pl[f"C{r}"] = (f'=SUMIFS({S}$H${FIRST}:$H${LAST},{S}$C${FIRST}:$C${LAST},'
-                   f'"{key}",{S}$D${FIRST}:$D${LAST},"Yes")')
+headers(pl, CAT_H, 2, ["CATEGORY", "HOURS", "OUR RATE / HR", "OUR COST",
+                       "STAFF COUNT", "HRS / PERSON / WEEK"])
+pl.row_dimensions[CAT_H].height = 30
+for r, name, key, rate, cnt in (
+        (CAT_M, "Managers", "Manager", R_MGR, PRE_M),
+        (CAT_C, "Coordinators", "Coordinator", R_CRD, PRE_C)):
+    pl[f"B{r}"] = name
+    pl[f"C{r}"] = (f'=SUMIFS({SS}$I${F1}:$I${FN},{SS}$D${F1}:$D${FN},"{key}",'
+                   f'{SS}$E${F1}:$E${FN},"Yes")')
     pl[f"D{r}"] = f"={rate}"
     pl[f"E{r}"] = f"=C{r}*D{r}"
     pl[f"F{r}"] = f"={cnt}"
-    pl[f"G{r}"] = f'=IF(OR(F{r}=0,INPUTS!$B$20=0),"",C{r}/F{r}/INPUTS!$B$20)'
-
-r = R_CAT_T
-pl[f"B{r}"] = "Team (weekly meetings — all staff)"
-pl[f"C{r}"] = (f'=SUMIFS({S}$H${FIRST}:$H${LAST},{S}$C${FIRST}:$C${LAST},'
-               f'"Team",{S}$D${FIRST}:$D${LAST},"Yes")')
-pl[f"D{r}"] = "=INPUTS!$B$25*INPUTS!$B$29+INPUTS!$B$26*INPUTS!$B$30"
-pl[f"E{r}"] = f"=C{r}*D{r}"
-pl[f"F{r}"] = "=INPUTS!$B$25+INPUTS!$B$26"
-pl[f"G{r}"] = f'=IF(INPUTS!$B$20=0,"",C{r}/INPUTS!$B$20)'
-
-r = R_CAT_TOT
-pl[f"B{r}"] = "TOTAL PRE-PLANNING"
-pl[f"C{r}"] = f"=SUM(C{R_CAT_M}:C{R_CAT_T})"
-pl[f"E{r}"] = f"=SUM(E{R_CAT_M}:E{R_CAT_T})"
-pl[f"F{r}"] = f"=INPUTS!$B$25+INPUTS!$B$26"
-
-for r in range(R_CAT_M, R_CAT_TOT + 1):
+    pl[f"G{r}"] = f'=IF(OR(F{r}=0,{WEEKS}=0),"",C{r}/F{r}/{WEEKS})'
+pl[f"B{CAT_T}"] = "Team (weekly meetings)"
+pl[f"C{CAT_T}"] = (f'=SUMIFS({SS}$I${F1}:$I${FN},{SS}$D${F1}:$D${FN},"Team",'
+                   f'{SS}$E${F1}:$E${FN},"Yes")')
+pl[f"D{CAT_T}"] = f"={PRE_M}*{R_MGR}+{PRE_C}*{R_CRD}"
+pl[f"E{CAT_T}"] = f"=C{CAT_T}*D{CAT_T}"
+pl[f"F{CAT_T}"] = f"={PRE_M}+{PRE_C}"
+pl[f"G{CAT_T}"] = f'=IF({WEEKS}=0,"",C{CAT_T}/{WEEKS})'
+pl[f"B{CAT_TOT}"] = "TOTAL PRE-PLANNING"
+pl[f"C{CAT_TOT}"] = f"=SUM(C{CAT_M}:C{CAT_T})"
+pl[f"E{CAT_TOT}"] = f"=SUM(E{CAT_M}:E{CAT_T})"
+pl[f"F{CAT_TOT}"] = f"={PRE_M}+{PRE_C}"
+for r in range(CAT_M, CAT_TOT + 1):
     for col in "BCDEFG":
         cell = pl[f"{col}{r}"]
-        cell.border = BOX
-        cell.font = Font(name=FONT, size=10, bold=(r == R_CAT_TOT))
+        cell.border = DBL if r == CAT_TOT else BOX
+        cell.font = Font(name=BODY_FONT, size=10, bold=(r == CAT_TOT))
+        if r == CAT_TOT:
+            cell.fill = PatternFill("solid", fgColor=PINK)
     pl[f"C{r}"].number_format = HRS
-    pl[f"D{r}"].number_format = MONEY2
+    pl[f"D{r}"].number_format = RATE
     pl[f"E{r}"].number_format = MONEY
     pl[f"F{r}"].number_format = HRS
     pl[f"G{r}"].number_format = '#,##0.0;;"-"'
-for col in "BCDEFG":
-    pl[f"{col}{R_CAT_TOT}"].border = DBL
-    pl[f"{col}{R_CAT_TOT}"].fill = PatternFill("solid", fgColor=GREY)
+note(pl, f"B{CAT_TOT+1}", "HRS / PERSON / WEEK is the workload check — above roughly 10, "
+                          "add staff or trim scope.")
 
-note(pl, f"B{R_CAT_TOT+1}",
-     "HRS / PERSON / WEEK is a workload check — if it climbs above roughly 10, "
-     "either add staff or trim scope.")
+# --- event management (top-level roll-up)
+TBL = ["SCOPE OF WORK", "CLIENT RATE", "HOURS", "CLIENT COST", "OUR RATE",
+       "HOURS", "OUR COST", "NET PROFIT", "% Profit"]
+band(pl, EM_BAND, 2, 10, "EVENT MANAGEMENT")
+headers(pl, EM_H, 2, TBL)
+pl.row_dimensions[EM_H].height = 28
+for n in range(len(TOPS)):
+    r = EM_1 + n
+    m = f"MATCH({n+1},{SEQ},0)"
+    pl[f"A{r}"] = f'=IFERROR(INDEX({SS}$U${R1}:$U${RN},{m}),"")'
+    pl[f"B{r}"] = f'=IFERROR(INDEX({SS}$P${R1}:$P${RN},{m}),"")'
+    pl[f"D{r}"] = f'=IFERROR(INDEX({SS}$Q${R1}:$Q${RN},{m}),"")'
+    pl[f"E{r}"] = f'=IFERROR(INDEX({SS}$R${R1}:$R${RN},{m}),"")'
+    pl[f"G{r}"] = f'=IF(B{r}="","",D{r})'
+    pl[f"H{r}"] = f'=IFERROR(INDEX({SS}$S${R1}:$S${RN},{m}),"")'
+    pl[f"C{r}"] = f'=IF(OR(B{r}="",D{r}=0),"",E{r}/D{r})'
+    pl[f"F{r}"] = f'=IF(OR(B{r}="",G{r}=0),"",H{r}/G{r})'
+    pl[f"I{r}"] = f'=IF(B{r}="","",E{r}-H{r})'
+    pl[f"J{r}"] = f'=IF(OR(B{r}="",E{r}=0),"",I{r}/E{r})'
+pl[f"B{EM_TOT}"] = "TOTALS"
+for col in ("D", "E", "G", "H", "I"):
+    pl[f"{col}{EM_TOT}"] = f"=SUM({col}{EM_1}:{col}{EM_N})"
+pl[f"J{EM_TOT}"] = f'=IF(E{EM_TOT}=0,"",I{EM_TOT}/E{EM_TOT})'
 
-# ---- pre-planning detail table
-TBL_HDRS = ["SCOPE OF WORK", "STAFF", "CLIENT RATE", "HOURS", "CLIENT COST",
-            "OUR RATE", "HOURS", "OUR COST", "NET PROFIT", "% PROFIT"]
-band(pl, R_PRE_HDR - 1, 2, 11, "PRE-PLANNING  —  EVENT MANAGEMENT")
-headers(pl, R_PRE_HDR, 2, TBL_HDRS)
-
-for n in range(len(SCOPE_ITEMS)):
-    r = R_PRE_1 + n
-    m = f'MATCH({n+1},{SEQ},0)'
-    pl[f"B{r}"] = f'=IFERROR(INDEX({S}$B${FIRST}:$B${LAST},{m}),"")'
-    pl[f"C{r}"] = f'=IFERROR(INDEX({S}$C${FIRST}:$C${LAST},{m}),"")'
-    pl[f"D{r}"] = f'=IFERROR(INDEX({S}$I${FIRST}:$I${LAST},{m}),"")'
-    pl[f"E{r}"] = f'=IFERROR(INDEX({S}$H${FIRST}:$H${LAST},{m}),"")'
-    pl[f"F{r}"] = f'=IF(B{r}="","",D{r}*E{r})'
-    pl[f"G{r}"] = f'=IFERROR(INDEX({S}$J${FIRST}:$J${LAST},{m}),"")'
-    pl[f"H{r}"] = f'=IF(B{r}="","",E{r})'
-    pl[f"I{r}"] = f'=IF(B{r}="","",G{r}*H{r})'
-    pl[f"J{r}"] = f'=IF(B{r}="","",F{r}-I{r})'
-    pl[f"K{r}"] = f'=IF(OR(B{r}="",F{r}=0),"",J{r}/F{r})'
-
-r = R_PRE_TOT
-pl[f"B{r}"] = "TOTALS"
-for col in ("E", "F", "H", "I", "J"):
-    pl[f"{col}{r}"] = f"=SUM({col}{R_PRE_1}:{col}{R_PRE_N})"
-pl[f"K{r}"] = f'=IF(F{r}=0,"",J{r}/F{r})'
-
-# ---- onsite table
-band(pl, R_ON_HDR - 1, 2, 11, "ONSITE MANAGEMENT  —  one line per person")
-headers(pl, R_ON_HDR, 2, TBL_HDRS)
-
-ONSITE_MGR_HRS = "(INPUTS!$B$15+INPUTS!$B$16)*INPUTS!$B$38+INPUTS!$B$17*INPUTS!$B$41"
-ONSITE_CRD_HRS = "(INPUTS!$B$15+INPUTS!$B$16)*INPUTS!$B$39+INPUTS!$B$17*INPUTS!$B$41"
-
+# --- onsite management
+band(pl, ON_BAND, 2, 10, "ONSITE MANAGEMENT")
+headers(pl, ON_H, 2, TBL)
+pl.row_dimensions[ON_H].height = 28
+MGR_HRS = f"({EVD}+{SETD})*{H_MGR}+{TRVD}*{H_TRV}"
+CRD_HRS = f"({EVD}+{SETD})*{H_CRD}+{TRVD}*{H_TRV}"
 for i in range(10):
-    r = R_MGR_1 + i
-    on = f"{i+1}<=INPUTS!$B$23"
-    pl[f"B{r}"] = f'=IF({on},INPUTS!$B${51+i},"")'
-    pl[f"C{r}"] = f'=IF({on},"Manager","")'
-    pl[f"D{r}"] = f'=IF({on},INPUTS!$B$33,"")'
-    pl[f"E{r}"] = f'=IF({on},{ONSITE_MGR_HRS},"")'
-    pl[f"G{r}"] = f'=IF({on},INPUTS!$B$29,"")'
-
+    r = M1 + i
+    on = f"{i+1}<={ON_M}"
+    pl[f"A{r}"] = f'=IF({on},"PM","")'
+    pl[f"B{r}"] = f'=IF({on},INPUTS!$C${MGR_ROW1+i},"")'
+    pl[f"C{r}"] = f'=IF({on},{R_MGR_ON},"")'
+    pl[f"D{r}"] = f'=IF({on},{MGR_HRS},"")'
+    pl[f"F{r}"] = f'=IF({on},{R_MGR},"")'
 for j in range(10):
-    r = R_CRD_1 + j
-    on = f"{j+1}<=INPUTS!$B$24"
-    pl[f"B{r}"] = f'=IF({on},INPUTS!$B${63+j},"")'
-    pl[f"C{r}"] = f'=IF({on},"Coordinator","")'
-    pl[f"D{r}"] = f'=IF({on},INPUTS!$B$34,"")'
-    pl[f"E{r}"] = f'=IF({on},{ONSITE_CRD_HRS},"")'
-    pl[f"G{r}"] = f'=IF({on},INPUTS!$B$30,"")'
+    r = C1 + j
+    on = f"{j+1}<={ON_C}"
+    pl[f"A{r}"] = f'=IF({on},"EC","")'
+    pl[f"B{r}"] = f'=IF({on},INPUTS!$C${CRD_ROW1+j},"")'
+    pl[f"C{r}"] = f'=IF({on},{R_CRD_ON},"")'
+    pl[f"D{r}"] = f'=IF({on},{CRD_HRS},"")'
+    pl[f"F{r}"] = f'=IF({on},{R_CRD},"")'
+pl[f"A{OT}"] = f'=IF({ON_C}=0,"","EC")'
+pl[f"B{OT}"] = (f'=IF({ON_C}=0,"","Coordinator Overtime  ("&TEXT({ON_C},"0")&'
+                f'" x "&TEXT({H_OT},"0")&" hrs x "&TEXT({EVD}+{SETD},"0")&" days)")')
+pl[f"C{OT}"] = f'=IF({ON_C}=0,"",{R_CRD_ON}*{OT_X})'
+pl[f"D{OT}"] = f'=IF({ON_C}=0,"",{ON_C}*({EVD}+{SETD})*{H_OT})'
+pl[f"F{OT}"] = f'=IF({ON_C}=0,"",{R_CRD}*{OT_X})'
+for r in range(M1, OT + 1):
+    pl[f"E{r}"] = f'=IF(B{r}="","",C{r}*D{r})'
+    pl[f"G{r}"] = f'=IF(B{r}="","",D{r})'
+    pl[f"H{r}"] = f'=IF(B{r}="","",F{r}*G{r})'
+    pl[f"I{r}"] = f'=IF(B{r}="","",E{r}-H{r})'
+    pl[f"J{r}"] = f'=IF(OR(B{r}="",E{r}=0),"",I{r}/E{r})'
+pl[f"B{ON_TOT}"] = "TOTALS"
+for col in ("D", "E", "G", "H", "I"):
+    pl[f"{col}{ON_TOT}"] = f"=SUM({col}{M1}:{col}{OT})"
+pl[f"J{ON_TOT}"] = f'=IF(E{ON_TOT}=0,"",I{ON_TOT}/E{ON_TOT})'
 
-r = R_OT
-pl[f"B{r}"] = ('="Coordinator Overtime  ("&TEXT(INPUTS!$B$24,"0")&" coordinators x "'
-               '&TEXT(INPUTS!$B$40,"0")&" hrs x "&TEXT(INPUTS!$B$15+INPUTS!$B$16,"0")&" days)"')
-pl[f"C{r}"] = '=IF(INPUTS!$B$24=0,"","Coordinator")'
-pl[f"D{r}"] = '=IF(INPUTS!$B$24=0,"",INPUTS!$B$34*INPUTS!$B$35)'
-pl[f"E{r}"] = ('=IF(INPUTS!$B$24=0,"",INPUTS!$B$24*(INPUTS!$B$15+INPUTS!$B$16)'
-               '*INPUTS!$B$40)')
-pl[f"G{r}"] = '=IF(INPUTS!$B$24=0,"",INPUTS!$B$30*INPUTS!$B$35)'
-
-for r in list(range(R_MGR_1, R_OT + 1)):
-    pl[f"F{r}"] = f'=IF(B{r}="","",D{r}*E{r})'
-    pl[f"H{r}"] = f'=IF(B{r}="","",E{r})'
-    pl[f"I{r}"] = f'=IF(B{r}="","",G{r}*H{r})'
-    pl[f"J{r}"] = f'=IF(B{r}="","",F{r}-I{r})'
-    pl[f"K{r}"] = f'=IF(OR(B{r}="",F{r}=0),"",J{r}/F{r})'
-
-r = R_ON_TOT
-pl[f"B{r}"] = "TOTALS"
-for col in ("E", "F", "H", "I", "J"):
-    pl[f"{col}{r}"] = f"=SUM({col}{R_MGR_1}:{col}{R_OT})"
-pl[f"K{r}"] = f'=IF(F{r}=0,"",J{r}/F{r})'
-
-# ---- format both detail tables
-for rng in (range(R_PRE_1, R_PRE_TOT + 1), range(R_MGR_1, R_ON_TOT + 1)):
+for rng in (range(EM_1, EM_TOT + 1), range(M1, ON_TOT + 1)):
     for r in rng:
-        is_tot = r in (R_PRE_TOT, R_ON_TOT)
-        for col in "BCDEFGHIJK":
+        tot = r in (EM_TOT, ON_TOT)
+        for col in "ABCDEFGHIJ":
             cell = pl[f"{col}{r}"]
-            cell.border = DBL if is_tot else BOX
-            cell.font = Font(name=FONT, size=10, bold=is_tot)
-            if is_tot:
-                cell.fill = PatternFill("solid", fgColor=GREY)
-            cell.alignment = Alignment(wrap_text=(col == "B"),
-                                       vertical="center")
-            if col in ("D", "G"):
-                cell.number_format = MONEY2
-            elif col in ("E", "H"):
+            cell.border = DBL if tot else BOX
+            cell.font = Font(name=BODY_FONT, size=10, bold=tot)
+            if tot:
+                cell.fill = PatternFill("solid", fgColor=PINK)
+            cell.alignment = Alignment(wrap_text=(col == "B"), vertical="center",
+                                       horizontal="center" if col == "A" else None)
+            if col in ("C", "F"):
+                cell.number_format = RATE
+            elif col in ("D", "G"):
                 cell.number_format = HRS
-            elif col in ("F", "I", "J"):
+            elif col in ("E", "H", "I"):
                 cell.number_format = MONEY
-            elif col == "K":
+            elif col == "J":
                 cell.number_format = PCT
 
-# ---- overhead block
-band(pl, R_OH_HDR - 1, 2, 5, "STAFF OVERHEAD")
-headers(pl, R_OH_HDR, 2, ["ITEM", "STAFF HOURS", "RATE / HR", "OVERHEAD COST"])
-
-pl[f"B{R_OH_PRE}"] = "Pre-Planning staff hours"
-pl[f"C{R_OH_PRE}"] = f"=E{R_PRE_TOT}"
-pl[f"B{R_OH_ON}"] = "Onsite staff hours (incl. overtime)"
-pl[f"C{R_OH_ON}"] = f"=E{R_ON_TOT}"
-for r in (R_OH_PRE, R_OH_ON):
-    pl[f"D{r}"] = "=INPUTS!$B$44"
+# --- staff overhead
+band(pl, OH_BAND, 2, 5, "STAFF OVERHEAD")
+headers(pl, OH_H, 2, ["ITEM", "STAFF HOURS", "RATE / HR", "OVERHEAD COST"])
+pl[f"B{OH_PRE}"] = "Pre-planning staff hours"
+pl[f"C{OH_PRE}"] = f"=D{EM_TOT}"
+pl[f"B{OH_ON}"] = "Onsite staff hours (incl. overtime)"
+pl[f"C{OH_ON}"] = f"=D{ON_TOT}"
+for r in (OH_PRE, OH_ON):
+    pl[f"D{r}"] = f"={OVH}"
     pl[f"E{r}"] = f"=C{r}*D{r}"
-pl[f"B{R_OH_TOT}"] = "TOTAL STAFF OVERHEAD"
-pl[f"C{R_OH_TOT}"] = f"=SUM(C{R_OH_PRE}:C{R_OH_ON})"
-pl[f"E{R_OH_TOT}"] = f"=SUM(E{R_OH_PRE}:E{R_OH_ON})"
-
-for r in range(R_OH_PRE, R_OH_TOT + 1):
+pl[f"B{OH_TOT}"] = "TOTAL STAFF OVERHEAD"
+pl[f"C{OH_TOT}"] = f"=SUM(C{OH_PRE}:C{OH_ON})"
+pl[f"E{OH_TOT}"] = f"=SUM(E{OH_PRE}:E{OH_ON})"
+for r in range(OH_PRE, OH_TOT + 1):
     for col in "BCDE":
         cell = pl[f"{col}{r}"]
-        cell.border = DBL if r == R_OH_TOT else BOX
-        cell.font = Font(name=FONT, size=10, bold=(r == R_OH_TOT))
-        if r == R_OH_TOT:
-            cell.fill = PatternFill("solid", fgColor=GREY)
+        cell.border = DBL if r == OH_TOT else BOX
+        cell.font = Font(name=BODY_FONT, size=10, bold=(r == OH_TOT))
+        if r == OH_TOT:
+            cell.fill = PatternFill("solid", fgColor=PINK)
     pl[f"C{r}"].number_format = HRS
-    pl[f"D{r}"].number_format = MONEY2
+    pl[f"D{r}"].number_format = RATE
     pl[f"E{r}"].number_format = MONEY
+note(pl, f"B{OH_TOT+2}", "Overhead is a CTC cost — not billed, so it comes out of margin. "
+                         "The admin fee is charged on top of the client subtotal.")
 
-note(pl, f"B{R_OH_TOT+2}",
-     "Overhead is a CTC cost only — it is not billed to the client, so it reduces net profit.")
-note(pl, f"B{R_OH_TOT+3}",
-     "Admin fee is charged ON TOP of the client subtotal (pre-planning + onsite) "
-     "and is pure margin.")
-
-pl.column_dimensions["A"].width = 3
-pl.column_dimensions["B"].width = 48
-for col, w in {"C": 15, "D": 13, "E": 10, "F": 13, "G": 11, "H": 10,
-               "I": 13, "J": 13, "K": 11}.items():
+pl.column_dimensions["A"].width = 6.6
+pl.column_dimensions["B"].width = 49.1
+for col, w in {"C": 14.4, "D": 14.6, "E": 15.4, "F": 13.0, "G": 12.4,
+               "H": 14.9, "I": 13.2, "J": 9.9}.items():
     pl.column_dimensions[col].width = w
-pl.row_dimensions[R_SUM_HDR].height = 28
-pl.row_dimensions[R_CAT_HDR].height = 34
-pl.row_dimensions[R_PRE_HDR].height = 28
-pl.row_dimensions[R_ON_HDR].height = 28
-pl.row_dimensions[R_OH_HDR].height = 28
-pl.freeze_panes = "B5"
+pl.freeze_panes = "A5"
 
-# =========================================================== BENCHMARKS ======
-bm = wb.create_sheet("BENCHMARKS")
-bm.sheet_view.showGridLines = False
-title(bm, "A1", "BENCHMARKS  —  the four final P&Ls this model is built from", 14)
-note(bm, "A2", "Hardcoded from the source workbooks. Use to sanity-check a new P&L "
-               "before it goes out.")
-
-headers(bm, 4, 1, ["EVENT", "SOURCE TAB", "ATTENDEES", "EVENT DAYS",
-                   "PRE-PLANNING HRS", "PRE-PLANNING CLIENT $",
-                   "ONSITE HRS", "ONSITE CLIENT $", "TOTAL CLIENT $",
-                   "TOTAL OUR COST $", "NET PROFIT $", "% PROFIT"])
-
-BENCH = [
-    ("LCT / Marine Recreation Assn 2026", "FINAL June.10.2026 Version 3",
-     "~200", 3, 263, 22315, 132, 11100, 33415, 19630, 13785, 0.4125),
-    ("AFCI Studio Summit 2027", "FINAL July.27.2026 Version 2",
-     "350-500", 3, 617, 51845, 272, 27800, 79645, 42274, 37371, 0.4692),
-    ("WTUI 2027", "FINAL June.24.2026 Version 2",
-     "1100-1500", 4, 1182, 107870, 350, 30725, 138595, 73966, 64629, 0.4663),
-    ("NICA 2026", "Actual NICA 2026",
-     "n/a", 3, 1887, 134545, 334, 31900, 166445, 105151, 61294, 0.3683),
-]
-for n, row in enumerate(BENCH):
-    r = 5 + n
-    for i, v in enumerate(row):
-        cell = bm.cell(row=r, column=i + 1, value=v)
-        cell.border = BOX
-        cell.font = Font(name=FONT, size=10)
-        if i in (4, 6):
-            cell.number_format = HRS
-        elif i in (5, 7, 8, 9, 10):
-            cell.number_format = MONEY
-        elif i == 11:
-            cell.number_format = PCT
-
-note(bm, "A11", "NICA 2026 predates the current template (it used per-person named rows "
-                "rather than a scope-of-work list) and is shown for totals comparison only.")
-
-band(bm, 13, 1, 6, "BACK-TEST  —  the model re-run on each event's real inputs")
-headers(bm, 14, 1, ["EVENT", "PRE-PLANNING HRS\nmodel vs actual",
-                    "PRE-PLANNING $\nmodel vs actual", "ONSITE HRS\nmodel vs actual",
-                    "ONSITE $\nmodel vs actual", "CLIENT SUBTOTAL\nmodel vs actual"])
-BACKTEST = [
-    ("LCT / Marine Recreation Assn 2026", "269 vs 263  (+2%)", "$22,740 vs $22,315  (+2%)",
-     "132 vs 132  (0%)", "$11,490 vs $11,100  (+4%)", "$34,230 vs $33,415  (+2%)"),
-    ("AFCI Studio Summit 2027", "446 vs 617  (-28%)", "$39,600 vs $51,845  (-24%)",
-     "272 vs 272  (0%)", "$24,920 vs $27,800  (-10%)", "$64,520 vs $79,645  (-19%)"),
-    ("WTUI 2027", "1,159 vs 1,182  (-2%)", "$98,570 vs $107,870  (-9%)",
-     "390 vs 350  (+11%)", "$34,725 vs $30,725  (+13%)", "$133,295 vs $138,595  (-4%)"),
-]
-for n, row in enumerate(BACKTEST):
-    r = 15 + n
-    for i, v in enumerate(row):
-        cell = bm.cell(row=r, column=i + 1, value=v)
-        cell.border = BOX
-        cell.font = Font(name=FONT, size=10, bold=(i == 0))
-        cell.alignment = Alignment(wrap_text=True, vertical="center")
-note(bm, "A19", "LCT and WTUI land within a few percent. AFCI reads low because its final "
-                "proposal priced Registration at 150 hrs (full Cvent build-out plus mobile "
-                "app) and Programming at 65 hrs (recording & broadcast) — both well above "
-                "base scope. Use OVERRIDE HOURS on the SCOPE tab when a line is genuinely "
-                "bigger than standard.")
-note(bm, "A20", "WTUI onsite reads high only because this model defaults managers to 12 "
-                "hrs/onsite day; WTUI billed 10. Set 'Manager hours per onsite day' to 10 "
-                "on INPUTS and the 390 becomes 350 — an exact match.")
-
-band(bm, 22, 1, 6, "WHAT CHANGED IN THIS MODEL")
-CHANGES = [
-    ("Manager cost rate", "was $54/hr (PM) and $57/hr", "now $60/hr — flat, all manager hours"),
-    ("Coordinator cost rate", "was $38/hr (EC) and $35/hr", "now $42/hr — flat, all coordinator hours"),
-    ("Staff overhead", "not on prior P&Ls", "NEW: $0.61 x every CTC staff hour, booked as a cost"),
-    ("Admin fee", "not on prior P&Ls", "NEW: 2% of the client subtotal, added to the client price"),
-    ("Onsite staffing", "hand-typed, one row per named person",
-     "driven by manager / coordinator headcount, one row per person"),
-    ("Pre-planning staffing", "hand-typed per line", "rolled up by category (manager / coordinator / team)"),
-    ("Scope hours", "typed in each time", "calculated from event size, schedule and planning months"),
-]
-headers(bm, 23, 1, ["ITEM", "PRIOR P&Ls", "THIS MODEL"])
-for n, (a, b, c) in enumerate(CHANGES):
-    r = 24 + n
-    for i, v in enumerate((a, b, c)):
-        cell = bm.cell(row=r, column=i + 1, value=v)
-        cell.border = BOX
-        cell.font = Font(name=FONT, size=10, bold=(i == 0))
-        cell.alignment = Alignment(wrap_text=True, vertical="center")
-
-for col, w in {"A": 34, "B": 34, "C": 44, "D": 12, "E": 16, "F": 20,
-               "G": 12, "H": 16, "I": 16, "J": 16, "K": 14, "L": 11}.items():
-    bm.column_dimensions[col].width = w
-bm.row_dimensions[4].height = 34
-bm.row_dimensions[14].height = 34
-bm.row_dimensions[23].height = 20
-
-# ============================================================== README =======
+# =========================================================== HOW TO USE ======
 rd = wb.create_sheet("HOW TO USE")
 rd.sheet_view.showGridLines = False
 rd.column_dimensions["A"].width = 4
-rd.column_dimensions["B"].width = 110
-title(rd, "B1", "HOW TO BUILD A NEW CONFERENCE P&L", 16)
+rd.column_dimensions["B"].width = 112
+titlebar(rd, 1, 2, 2, "HOW TO BUILD A NEW CONFERENCE P&L")
 
 STEPS = [
-    ("", ""),
-    ("STEP 1 — INPUTS tab", ""),
-    ("", "Fill in the yellow cells: event name, dates, attendees, exhibitors, sponsors, "
-         "speakers, third-party items."),
-    ("", "Enter EVENT DAYS, SET-UP DAYS, TRAVEL DAYS and MONTHS OF PRE-PLANNING."),
-    ("", "Enter how many MANAGERS and COORDINATORS work the event onsite, and how many "
-         "work it in pre-planning."),
-    ("", "Rates are pre-set: manager $60/hr cost, coordinator $42/hr cost. Change them "
-         "only if the rate card changes."),
-    ("", ""),
-    ("STEP 2 — SCOPE tab", ""),
-    ("", "Set INCLUDE? to Yes or No on each of the 24 scope-of-work lines. That is your "
-         "scope of work."),
-    ("", "Hours calculate automatically from the INPUTS. If you disagree with a number, "
-         "type your own into OVERRIDE HOURS — nothing else needs to change."),
-    ("", "Columns M:O show what the last three events actually charged for that same line, "
-         "as a reality check."),
-    ("", ""),
-    ("STEP 3 — P&L tab", ""),
-    ("", "Read it. Nothing to type. The proposal summary, the pre-planning table, the "
-         "onsite table, overhead and the admin fee are all live formulas."),
-    ("", "Watch HRS / PERSON / WEEK in the category block — over ~10 means the headcount "
-         "is too thin for the scope."),
-    ("", ""),
-    ("HOW THE MONEY WORKS", ""),
-    ("", "CLIENT COST = hours x client rate.  Pre-planning: manager $90 / coordinator $65. "
-         "Onsite: manager $100 / coordinator $65. Coordinator overtime bills at 1.5x."),
-    ("", "OUR COST = hours x our rate. Manager $60, coordinator $42, overtime 1.5x."),
-    ("", "STAFF OVERHEAD = $0.61 x every CTC staff hour (pre-planning + onsite + overtime). "
-         "A cost to us — it is not billed, so it comes out of profit."),
-    ("", "ADMIN FEE = 2% of the client subtotal, added to what the client pays. It has no "
-         "cost against it, so all of it is profit."),
-    ("", "MULTI-YEAR DISCOUNT = the 5% off used on NICA and WTUI. Off by default — switch "
-         "'Apply Multi-Year Discount?' to Yes on INPUTS."),
-    ("", ""),
-    ("WHERE THE HOUR DRIVERS CAME FROM", ""),
-    ("", "Every driver is calibrated against the final LCT 2026, AFCI 2027 and WTUI 2027 "
-         "P&Ls. Where the old note in the sheet disagreed with what was actually charged, "
-         "the actuals won — e.g. Exhibit Management was noted as 'exhibitors x 5' but was "
-         "charged at exactly exhibitors x 1 on both WTUI (200) and LCT (35)."),
-    ("", "Percentage-of-attendee drivers carry a floor and a cap so a 1,500-person event "
-         "does not produce an absurd number. The bands are the observed range across the "
-         "three finals."),
-    ("", "See the BENCHMARKS tab for the totals each of those P&Ls landed on."),
+ ("STEP 1 — INPUTS", None),
+ (None, "Event size: attendees, exhibitors, sponsors, speakers, vendors to source, site visits."),
+ (None, "Schedule: event days, set-up days, travel days, months of pre-planning."),
+ (None, "Staffing: how many managers and coordinators onsite, and how many in pre-planning."),
+ (None, "Rates are pre-set — manager $60/hr cost, coordinator $42/hr cost. Change only if the "
+        "rate card changes."),
+ (None, None),
+ ("STEP 2 — SCOPE", None),
+ (None, "Every line matches the Master Proposal Template, sub-item by sub-item. Set INCLUDE? "
+        "to Yes or No on each."),
+ (None, "Hours calculate automatically. Disagree with a line? Type your number into OVERRIDE "
+        "HOURS — nothing else changes."),
+ (None, None),
+ ("STEP 3 — P&L", None),
+ (None, "Nothing to type. Scope rolls up to the top-level proposal headings, so the P&L reads "
+        "the same way the proposal does."),
+ (None, "Watch HRS / PERSON / WEEK — above roughly 10 the headcount is too thin for the scope."),
+ (None, None),
+ ("THE EVENT SCALE INDEX", None),
+ (None, "Most scope lines are priced as a base weight multiplied by the Event Scale Index, "
+        "shown on INPUTS. The index is:"),
+ (None, "        (attendees / 250) ^ 1/3   x   (planning months / 6) ^ 1/2   x   "
+        "(event days / 3) ^ 1/4"),
+ (None, "An index of 1.00 is a 250-person, 3-day event with 6 months of planning. The cube "
+        "and square roots matter: doubling attendance raises the index about 26%, not 100%, "
+        "which is how our hours have actually behaved. Straight percentage-of-attendees rules "
+        "break down badly at 1,000+ people."),
+ (None, "Lines with a real count behind them skip the index and bill directly: exhibitors x 1 hr, "
+        "sponsors x 1 hr, speakers x 1 hr, vendors x 5 hrs, site visits x 10 hrs. Weekly items "
+        "— meetings, the project management system, approvals — bill 1 hour per planning week."),
+ (None, None),
+ ("HOW THE MONEY WORKS", None),
+ (None, "CLIENT COST = hours x client rate. Pre-planning: manager $90 / coordinator $65. "
+        "Onsite: manager $100 / coordinator $65. Coordinator overtime bills at 1.5x."),
+ (None, "OUR COST = hours x our rate. Manager $60, coordinator $42, overtime 1.5x."),
+ (None, "STAFF OVERHEAD = $0.61 x every CTC staff hour, pre-planning and onsite. A cost to us, "
+        "not billed, so it reduces margin."),
+ (None, "ADMIN FEE = 2% of the client subtotal, added to what the client pays. Nothing costs "
+        "against it, so all of it is profit."),
+ (None, "MULTI-YEAR DISCOUNT = the 5% off additional years. Off by default — switch it on at "
+        "the bottom of INPUTS section 7."),
 ]
 r = 3
 for head, body in STEPS:
     if head:
-        rd.cell(row=r, column=2, value=head).font = Font(
-            name=FONT, size=11, bold=True, color=NAVY)
+        c = rd.cell(row=r, column=2, value=head)
+        c.font = Font(name=HEAD_FONT, size=12, bold=True, color="FFFFFF")
+        c.fill = PatternFill("solid", fgColor=BLUE)
+        rd.row_dimensions[r].height = 20
     elif body:
-        cell = rd.cell(row=r, column=2, value="•  " + body)
-        cell.font = Font(name=FONT, size=10)
-        cell.alignment = Alignment(wrap_text=True, vertical="top")
-        rd.row_dimensions[r].height = 30
+        c = rd.cell(row=r, column=2, value="•  " + body)
+        c.font = Font(name=BODY_FONT, size=10)
+        c.alignment = Alignment(wrap_text=True, vertical="top")
+        rd.row_dimensions[r].height = 15 * (1 + len(body) // 105)
     r += 1
 
-# default font everywhere
-for sheet in wb.worksheets:
-    for row in sheet.iter_rows():
-        for cell in row:
-            if cell.font and cell.font.name != FONT:
-                f = cell.font
-                cell.font = Font(name=FONT, size=f.size or 10, bold=f.bold,
-                                 italic=f.italic, color=f.color)
-
 wb.save(OUT)
-print("wrote", OUT)
+print(f"wrote {OUT}: {len(SCOPE)} scope sub-items, {len(TOPS)} top-level headings")

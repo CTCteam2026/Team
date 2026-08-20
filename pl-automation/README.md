@@ -1,85 +1,137 @@
 # Conference P&L Automation
 
-Turns a P&L from a two-hour typing job into four inputs.
+Turns a P&L from a two-hour typing job into a handful of inputs.
 
 **[`CTC_Conference_PL_Builder.xlsx`](CTC_Conference_PL_Builder.xlsx)** — open it, fill in the
-yellow cells, read the P&L. Every number is a live formula; nothing is hardcoded.
+yellow cells, tick the scope, read the P&L. Every number is a live formula.
 
-## What you tell it
+## Tabs
 
-| Input | Where |
+| Tab | What it does |
 |---|---|
-| How many **event days** and **set-up days** | INPUTS §2 |
-| How many **months of pre-planning** | INPUTS §2 |
-| Event size — **attendees, exhibitors, sponsors, speakers, vendors to source** | INPUTS §1 |
-| **Scope of work** — 25 line items, Yes/No each | SCOPE tab, column D |
-| How many **managers** and **coordinators** work it **onsite** | INPUTS §3 |
-| How many **managers** and **coordinators** work it **in pre-planning** | INPUTS §3 |
+| **INPUTS** | The only place you type numbers. Event size, schedule, staffing, rates, fees. |
+| **SCOPE** | All 56 sub-items from the 2026 Master Proposal Template. Yes/No each, plus a per-line hour override. |
+| **P&L** | Reads out at the proposal's **top-level headings** — VENUE SOURCING, VENUE MANAGEMENT, EVENT BRANDING… |
+| **HOW TO USE** | One page explaining the scale index and the money. |
 
-## What it gives you back
+## Scope of work
 
-A complete P&L: proposal summary, a pre-planning table, an onsite table with one line per
-person, staff overhead, admin fee and grand total — client cost, our cost, net profit and
-margin at every level.
+The SCOPE tab mirrors the proposal exactly, sub-item by sub-item:
 
-## The rules baked in
+```
+VENUE SOURCING: Request for Proposal
+VENUE SOURCING: Venue/Hotel Analysis
+VENUE SOURCING: Site Visits
+VENUE SOURCING: Contract Negotiations
+TOURNAMENTS: Venue Booking & Coordination
+TOURNAMENTS: Registration & Communications
+TOURNAMENTS: Check-In & Onsite Management
+...
+```
 
-**Staff rates** — manager **$60/hr** cost, coordinator **$42/hr** cost. Onsite is split
-per person (one row each). Pre-planning rolls up by category. Client rates follow the
-historical card: PM $90 / EC $65 pre-planning, PM $100 onsite, coordinator overtime at 1.5×.
+The P&L rolls these into the 20 top-level headings, so the P&L reads the same way the
+proposal does. Turn on one sub-item or all four — the heading appears once either way, and
+disappears entirely if nothing under it is selected.
 
-**Staff overhead** — **$0.61 × every CTC staff hour** (pre-planning + onsite + overtime).
-A cost to us, not billed, so it comes out of margin.
+**One item is not in the proposal:** `EVENT BRANDING: Graphic Design (add-on)`, defaulted to
+**No**. Two of the three reference P&Ls billed 55–65 hours for graphic design as a separate
+line, so leaving it out made those events impossible to reproduce. It sits inside the branding
+block and stays invisible unless you sell it.
 
-**Admin fee** — **2% of the client subtotal**, added on top of what the client pays.
-No cost sits against it, so all of it is profit.
+## The Event Scale Index — the new hour model
 
-**Hour drivers** — each of the 25 scope lines calculates its own hours from the inputs.
-Calibrated against the final LCT 2026, AFCI 2027 and WTUI 2027 P&Ls. Where the old note in
-the sheet disagreed with what was actually charged, the actuals won — e.g. Exhibit Management
-was noted as "exhibitors × 5" but was billed at exactly **exhibitors × 1** on both WTUI (200
-hrs / 200 exhibitors) and LCT (35 / 35). Percentage-of-attendee drivers carry a floor and a
-cap taken from the observed range, so a 1,500-person event doesn't produce a nonsense number.
+The old drivers were flat percentages of attendance ("10% of attendees = hours"). Those were
+fitted on small events and break at scale: 10% of 1,500 attendees is 150 hours of branding
+work, and no event has ever been billed that way.
 
-Any line you disagree with: type a number into **OVERRIDE HOURS** on the SCOPE tab. Nothing
-else changes.
+What the numbers actually show is that hours grow **sub-linearly** with size. Total
+pre-planning hours across the reference events were 263 at ~200 attendees, 617 at 500, and
+1,182 at 1,500 — attendance rose 7.5×, hours rose 4.5×.
 
-## How well it matches the real P&Ls
+So most lines are now priced as **a base weight × an Event Scale Index**:
 
-Feeding each event's real inputs back through the model:
+```
+ESI = (attendees / 250)^(1/3)  ×  (planning months / 6)^(1/2)  ×  (event days / 3)^(1/4)
+```
 
-| Event | Pre-planning hrs | Pre-planning $ | Onsite hrs | Client subtotal |
-|---|---|---|---|---|
-| LCT / Marine Recreation 2026 | +2% | +2% | **exact** | **+2%** |
-| AFCI Studio Summit 2027 | −28% | −24% | **exact** | −19% |
-| WTUI 2027 | −2% | −9% | +11% | **−4%** |
+ESI = 1.00 is a 250-person, 3-day event with 6 months of planning. Doubling attendance raises
+it ~26%, not 100%. Each scope line carries a base weight — its hours at ESI 1.00 — so the
+whole library scales together and stays in proportion.
 
-AFCI reads low because its final proposal priced Registration at 150 hrs (a full Cvent
-build-out plus mobile app) and Programming at 65 hrs (recording & broadcast) — both well
-above base scope. That is what the override column is for.
+Divide each event's real hours by its ESI and the implied base weights come out nearly
+identical across all three events, which is the evidence the index is doing real work:
 
-WTUI onsite reads high only because the model defaults managers to 12 hrs/onsite day and
-WTUI billed 10. Change that input and it matches exactly.
+| Line | LCT ÷ 0.76 | AFCI ÷ 1.54 | WTUI ÷ 2.23 |
+|---|---|---|---|
+| Venue Management | 26 | 23 | 31 |
+| Event Branding | 24 | 16 | 22 |
+| Post-Event | 11 | 10 | 9 |
+| Planning / Timeline | 11 | 10 | 7 |
+
+**Lines with a real count behind them skip the index** and bill directly, because that matched
+history exactly:
+
+| Line | Driver |
+|---|---|
+| Exhibit Management | exhibitors × 1 hr — *WTUI billed 200 for 200 exhibitors, LCT 35 for 35* |
+| Sponsor Management | sponsors × 1 hr |
+| Speaker Management | speakers × 1 hr, split 0.7 prep / 0.3 onsite |
+| Third Party Vendors | vendors × 5 hrs |
+| Site Visits | site visits × 10 hrs |
+| Meetings, PM system, approvals | 1 hr per planning week each |
+
+Disagree with any line? Type a number into **OVERRIDE HOURS**. Nothing else changes.
+
+## How well it reproduces the reference P&Ls
+
+Each event's real inputs and real scope selection fed back through the model:
+
+| Event | Pre-planning hrs | Pre-planning $ | Onsite hrs | Onsite $ | Client subtotal |
+|---|---|---|---|---|---|
+| LCT / Marine Recreation 2026 | **+3%** | **+2%** | exact | +4% | **+3%** |
+| AFCI Studio Summit 2027 | −6% | −5% | exact | −10% | −7% |
+| WTUI 2027 | +5% | −5% | exact | exact | −4% |
+
+Every line is within 10%, most within 5%. Onsite hours land **exactly** on all three once the
+manager hours-per-day input is set to what each event actually billed (14 for LCT, 12 for
+AFCI, 10 for WTUI). AFCI's onsite dollars read low because it carried three production
+assistants at $45/hr, which this model prices as coordinators.
+
+Run `python3 validate_against_history.py` to reproduce, or `-v` for the per-heading breakdown.
+
+## Rates and money
+
+- Manager **$60/hr** cost, coordinator **$42/hr** cost.
+- Onsite is split **per person** — one row each, driven by headcount. Pre-planning rolls up
+  **by category**, with headcount setting the weekly-meeting rate and the workload check.
+- Client rates: manager $90 / coordinator $65 pre-planning, manager $100 onsite, coordinator
+  overtime at 1.5×.
+- **Staff overhead $0.61 × every staff hour** — a cost, not billed, so it reduces margin.
+- **Admin fee 2% of the client subtotal** — added on top, nothing costs against it.
+- Multi-year discount 5%, off unless switched on.
+
+## Look
+
+Matches the house style from the reference P&Ls: magenta title bar with yellow type, blue
+section bands, pink totals rows, Poppins headings over Barlow body, `$#,##0.00` rates. No
+other conference is named anywhere in the workbook.
 
 ## Files
 
 | File | What it is |
 |---|---|
 | `CTC_Conference_PL_Builder.xlsx` | The template. This is the deliverable. |
-| `build_pl_template.py` | Generates the template. Edit here to change the scope library or drivers, then re-run. |
-| `validate_against_history.py` | Re-runs the three historical events through the model and prints the deltas above. |
-
-Regenerate:
+| `build_pl_template.py` | Generates it. Edit the `SCOPE` list to change items or base weights, then re-run. |
+| `validate_against_history.py` | Back-test against the three reference events. |
 
 ```bash
 python3 build_pl_template.py
-python3 /root/.claude/skills/synced/xlsx/scripts/recalc.py CTC_Conference_PL_Builder.xlsx 200
-python3 validate_against_history.py     # optional back-test
+python3 /root/.claude/skills/synced/xlsx/scripts/recalc.py CTC_Conference_PL_Builder.xlsx 240
+python3 validate_against_history.py -v
 ```
 
 ## Open item
 
-**Admin fee base.** Implemented as 2% of the *client subtotal* (pre-planning + onsite),
-charged on top of the client price. If you meant 2% of our internal cost, or 2% of the
-grand total after the multi-year discount, change `C10` on the P&L tab — it is a one-cell
-edit, and the fee % itself already lives on INPUTS.
+**Admin fee base.** Implemented as 2% of the client subtotal (pre-planning + onsite +
+overhead), charged on top and before any multi-year discount. If you meant 2% of our internal
+cost or of the post-discount total, it is a one-cell edit at `C10` on the P&L tab.
