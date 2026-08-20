@@ -14,6 +14,7 @@ SCOPE_FIRST, SCOPE_LAST = 4, 76
 INC_COL, LABEL_COL, HEAD_COL = 4, 2, 13
 
 # INPUTS cells
+UTIL_C, OHP_C = "C53", "C54"
 K = dict(att="C10", exh="C11", spo="C12", spk="C13", ven="C14", sit="C15",
          evd="C18", setd="C19", trv="C20", mon="C22",
          onm="C27", onc="C28", prm="C29", prc="C30", mgrhrs="C42")
@@ -75,6 +76,7 @@ def run_case(case, verbose=False):
     iw["C5"] = case["name"]
     for cell, val in case["inputs"].items():
         iw[cell] = val
+    iw[UTIL_C], iw[OHP_C] = SCEN[0], SCEN[1]
     for r in range(SCOPE_FIRST, SCOPE_LAST + 1):
         head = sc.cell(row=r, column=HEAD_COL).value
         if not head:                       # banded heading row, nothing to set
@@ -103,7 +105,9 @@ def run_case(case, verbose=False):
                 on_hrs=p["D64"].value, on_client=p["E64"].value,
                 subtotal=p["C9"].value, grand=p["C12"].value,
                 cost=p["D12"].value, profit=p["E12"].value,
-                margin=p["F12"].value, errors=res["total_errors"])
+                margin=p["F12"].value, errors=res["total_errors"],
+                true_cost=p["J16"].value, true_profit=p["J17"].value,
+                true_margin=p["J18"].value, target_price=p["J19"].value)
 
 
 def d(m, a):
@@ -111,6 +115,11 @@ def d(m, a):
 
 
 verbose = "-v" in sys.argv
+SCEN = (1.00, 0.00)
+for a in sys.argv[1:]:
+    if a.startswith("--basis="):          # e.g. --basis=0.80,0.15
+        SCEN = tuple(float(x) for x in a.split("=")[1].split(","))
+print(f"basis: {SCEN[0]:.0%} utilization, {SCEN[1]:.0%} overhead\n")
 print(f"{'EVENT':<30}{'METRIC':<18}{'MODEL':>10}{'ACTUAL':>10}{'DELTA':>8}")
 print("-" * 76)
 for case in CASES:
@@ -120,7 +129,10 @@ for case in CASES:
                    ("on_hrs", "onsite hrs"), ("on_client", "onsite $"),
                    ("subtotal", "client subtotal $")):
         print(f"{case['name'][:29]:<30}{lbl:<18}{m[k]:>10,.0f}{a[k]:>10,.0f}{d(m[k], a[k]):>8}")
-    print(f"{'':<30}{'grand total':<18}{m['grand']:>10,.0f}{'':>10}{'':>8}"
-          f"   cost {m['cost']:,.0f} · profit {m['profit']:,.0f} · "
-          f"margin {m['margin']:.1%} · errors {m['errors']}")
+    print(f"{'':<30}{'quoted':<18}{m['grand']:>10,.0f}{'':>10}{'':>8}"
+          f"   cost {m['cost']:>9,.0f} · profit {m['profit']:>8,.0f} · margin {m['margin']:>6.1%}")
+    print(f"{'':<30}{'TRUE':<18}{'':>10}{'':>10}{'':>8}"
+          f"   cost {m['true_cost']:>9,.0f} · profit {m['true_profit']:>8,.0f} · "
+          f"margin {m['true_margin']:>6.1%} · price for target "
+          f"{m['target_price']:,.0f}")
     print("-" * 76)

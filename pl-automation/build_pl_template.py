@@ -186,15 +186,21 @@ lab(iw, "B50", "Multi-Year Discount %");              inp(iw, "C50", 0.05, "0.0%
 lab(iw, "B51", "Apply Multi-Year Discount?");         inp(iw, "C51", "No")
 lab(iw, "B52", "Target Net Margin %", bold=True);          inp(iw, "C52", 0.40, "0.0%")
 note(iw, "D52", "Used by the margin check on the P&L — what client price hits this margin.")
+lab(iw, "B53", "Utilization %", bold=True);                inp(iw, "C53", 1.00, "0.0%")
+lab(iw, "B54", "Overhead % of direct labor", bold=True);   inp(iw, "C54", 0.00, "0.0%")
+note(iw, "D53", "Share of a paid hour that is billable to a client. 100% leaves the P&L "
+                "exactly as quoted; agencies plan around 75-85%. Measure it before trusting it.")
+note(iw, "D54", "Rent, software, insurance, non-billable salaries as a share of staff cost. "
+                "Typical agency range 15-30%. Feeds the TRUE COST view only.")
 note(iw, "D48", "Charged against every CTC staff hour. A cost to us — not billed.")
 note(iw, "D49", "2% of the client subtotal, added to the client price. No cost against it.")
 note(iw, "D50", "The '5% off additional years' line, off unless switched on below.")
 
-band(iw, 54, 2, 4, "8.  ONSITE ROLE TITLES")
-note(iw, "D55", "Only the first N lines are used, where N is the headcount in section 4. "
+band(iw, 56, 2, 4, "8.  ONSITE ROLE TITLES")
+note(iw, "D57", "Only the first N lines are used, where N is the headcount in section 4. "
                 "Titles are labels only — rates come from section 5.")
-lab(iw, "B55", "ONSITE MANAGERS", bold=True)
-MGR_ROW1 = 56
+lab(iw, "B57", "ONSITE MANAGERS", bold=True)
+MGR_ROW1 = 58
 for i, t in enumerate(["Project Manager", "Event Manager", "Executive Producer",
                        "Registration Manager", "Housing / Expo Manager",
                        "Production Manager", "Manager 7", "Manager 8",
@@ -202,7 +208,7 @@ for i, t in enumerate(["Project Manager", "Event Manager", "Executive Producer",
     lab(iw, f"B{MGR_ROW1+i}", f"    Manager {i+1}")
     inp(iw, f"C{MGR_ROW1+i}", t)
 
-CRD_ROW1 = 67
+CRD_ROW1 = 69
 lab(iw, f"B{CRD_ROW1-1}", "ONSITE COORDINATORS", bold=True)
 for i, t in enumerate(["Event Coordinator", "Registration Coordinator",
                        "Office Manager", "Production Assistant",
@@ -228,6 +234,7 @@ R_MGR_CL, R_CRD_CL = N+"35", N+"36"
 R_MGR_ON, R_CRD_ON, OT_X = N+"37", N+"38", N+"39"
 H_MGR, H_CRD, H_OT, H_TRV = N+"42", N+"43", N+"44", N+"45"
 OVH, FEE, DISC, DISC_ON, TGT = N+"48", N+"49", N+"50", N+"51", N+"52"
+UTIL, OHP = N+"53", N+"54"
 
 # ============================================================== SCOPE ========
 # (top level, sub-item, staff, driver kind, weight, driver text)
@@ -568,7 +575,7 @@ for col in "BCDEF":
 
 # --- workload check (B:G) and margin check (H:J), side by side
 band(pl, CHK_B, 2, 7, "PRE-PLANNING WORKLOAD")
-band(pl, CHK_B, 8, 10, "MARGIN CHECK")
+band(pl, CHK_B, 8, 10, "TRUE COST VIEW")
 headers(pl, CHK_H, 2, ["CATEGORY", "HOURS", "OUR RATE / HR", "OUR COST",
                        "STAFF", "HRS / PERSON / WEEK"])
 headers(pl, CHK_H, 8, ["", "", ""])
@@ -603,12 +610,13 @@ for r in range(CAT_M, CAT_TOT + 1):
     pl[f"F{r}"].number_format = HRS
     pl[f"G{r}"].number_format = '#,##0.0;;"-"'
 
-MARGIN = [("Target net margin", f"={TGT}", PCT),
-          ("This P&L's net margin", f"=F{R_GT}", PCT),
-          ("Client price that hits target",
-           f'=IF({TGT}>=1,"",D{R_GT}/(1-{TGT}))', MONEY),
-          ("Gap vs grand total",
-           f'=IF({TGT}>=1,"",D{R_GT}/(1-{TGT})-C{R_GT})', MONEY)]
+TRUECOST = (f"(D{R_PRE}+D{R_ON})/{UTIL}*(1+{OHP})+D{R_OH}")
+MARGIN = [("True cost of delivery", f"={TRUECOST}", MONEY),
+          ("True net profit", f"=C{R_GT}-({TRUECOST})", MONEY),
+          ("True net margin",
+           f'=IF(C{R_GT}=0,"",(C{R_GT}-({TRUECOST}))/C{R_GT})', PCT),
+          ("Client price for target margin",
+           f'=IF({TGT}>=1,"",({TRUECOST})/(1-{TGT}))', MONEY)]
 for n, (name, formula, fmt) in enumerate(MARGIN):
     r = CAT_M + n
     pl[f"H{r}"] = name
@@ -616,14 +624,15 @@ for n, (name, formula, fmt) in enumerate(MARGIN):
     pl[f"J{r}"].number_format = fmt
     for col in "HIJ":
         pl[f"{col}{r}"].border = BOX
-        pl[f"{col}{r}"].font = Font(name=BODY_FONT, size=10,
-                                    bold=(n == 3))
-    if n == 3:
+        pl[f"{col}{r}"].font = Font(name=BODY_FONT, size=10, bold=(n == 2))
+    if n == 2:
         for col in "HIJ":
             pl[f"{col}{r}"].fill = PatternFill("solid", fgColor=PINK)
-note(pl, f"B{CAT_TOT+1}",
-     "HRS / PERSON / WEEK above roughly 10 means the headcount is too thin for the scope. "
-     "A positive margin gap means the client price is short of the target margin.")
+pl[f"B{CAT_TOT+1}"] = (
+    '="HRS / PERSON / WEEK above ~10 means the headcount is too thin for the scope.    '
+    'TRUE COST assumes "&TEXT(' + UTIL + ',"0%")&" utilization and "&TEXT(' + OHP + ',"0%")&'
+    '" overhead — at 100% and 0% it equals the quoted cost above."')
+pl[f"B{CAT_TOT+1}"].font = Font(name=BODY_FONT, size=9, italic=True, color="7F7F7F")
 
 # --- event management (heading roll-up)
 TBL = ["SCOPE OF WORK", "CLIENT RATE", "HOURS", "CLIENT COST", "OUR RATE",
@@ -807,6 +816,21 @@ STEPS = [
         "against it, so all of it is profit."),
  (None, "MULTI-YEAR DISCOUNT = the 5% off additional years. Off by default — switch it on at "
         "the bottom of INPUTS section 7."),
+ (None, None),
+ ("THE TRUE COST VIEW  —  read this before trusting a margin", None),
+ (None, "The % Profit column is a GROSS margin on direct labour. It counts salary and burden. "
+        "It does not count the part of the year staff are paid but not billable, and it does "
+        "not count real overhead. Those are the two inputs at the bottom of INPUTS section 7."),
+ (None, "UTILIZATION % = billable hours divided by paid hours. At 100% the true cost view "
+        "matches the quoted cost exactly, so the workbook behaves as before until you change "
+        "it. Agencies plan around 75-85%. Measure it from timesheets against payroll before "
+        "you trust any number here."),
+ (None, "OVERHEAD % OF DIRECT LABOR = rent, software, insurance, non-billable salaries and "
+        "business development as a share of staff cost. Typical agency range is 15-30%. This "
+        "supersedes the $0.61/hr line, which is around 1% of a manager hour."),
+ (None, "TRUE NET MARGIN on the P&L is what is left after both. At 80% utilization and 15% "
+        "overhead a P&L quoting 36% returns about 8%. CLIENT PRICE FOR TARGET MARGIN tells you "
+        "what to charge instead."),
 ]
 r = 3
 for head, body in STEPS:
