@@ -1,0 +1,351 @@
+<title>2027 Rate Benchmarks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,500;0,600;0,700;1,600&family=Barlow:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --ground:#F7F9FD; --surface:#FFFFFF; --surface-2:#EEF2FB;
+  --ink:#1F243D; --body:#4C5773; --muted:#7B84A3;
+  --rail:#E5E8F8; --line:#DDE3F2;
+  --blue:#417CBC; --pink:#EE6197;
+  --blue-soft:#DCE8F6; --pink-soft:#FBDDE9;
+  --warn-ink:#8A4B12; --warn-bg:#FBEEE2; --warn-line:#E8C9A8;
+  --shadow:0 1px 2px rgba(31,36,61,.05), 0 8px 24px -14px rgba(31,36,61,.22);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#141726; --surface:#1C2036; --surface-2:#232842;
+    --ink:#EEF1FA; --body:#B3BAD2; --muted:#7E87A6;
+    --rail:#2A3050; --line:#2E3554;
+    --blue:#5B96D8; --pink:#E4568F;
+    --blue-soft:#26344F; --pink-soft:#3B2334;
+    --warn-ink:#E8B888; --warn-bg:#2E2519; --warn-line:#4A3A22;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -14px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#141726; --surface:#1C2036; --surface-2:#232842;
+  --ink:#EEF1FA; --body:#B3BAD2; --muted:#7E87A6;
+  --rail:#2A3050; --line:#2E3554;
+  --blue:#5B96D8; --pink:#E4568F;
+  --blue-soft:#26344F; --pink-soft:#3B2334;
+  --warn-ink:#E8B888; --warn-bg:#2E2519; --warn-line:#4A3A22;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -14px rgba(0,0,0,.6);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--body);
+  font-family:Barlow,"Helvetica Neue",Arial,sans-serif;
+  font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:980px; margin:0 auto; padding:clamp(28px,5vw,64px) clamp(18px,4vw,32px) 80px;
+      display:flex; flex-direction:column; gap:clamp(34px,5vw,52px)}
+h1,h2,h3,.num{font-family:Poppins,"Helvetica Neue",Arial,sans-serif; color:var(--ink)}
+h1{font-size:clamp(30px,5.2vw,46px); font-weight:700; line-height:1.1; letter-spacing:-.02em;
+   margin:0; text-wrap:balance}
+h2{font-size:clamp(19px,2.6vw,23px); font-weight:600; line-height:1.25; margin:0 0 4px;
+   letter-spacing:-.01em; text-wrap:balance}
+h3{font-size:15px; font-weight:600; margin:0 0 6px}
+p{margin:0}
+b,strong{font-weight:600; color:var(--ink)}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* masthead */
+.eyebrow{font-family:Poppins,sans-serif; font-size:11.5px; font-weight:600; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--muted)}
+.rule{height:3px; border-radius:2px; margin-top:22px;
+  background:linear-gradient(100deg,var(--pink),var(--blue))}
+.standfirst{font-size:clamp(17px,2.3vw,19.5px); line-height:1.55; margin-top:18px; max-width:62ch}
+.standfirst b{color:var(--ink)}
+
+/* section shell */
+section{display:flex; flex-direction:column; gap:16px}
+.lede{max-width:68ch}
+
+/* stat tiles */
+.tiles{display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(232px,1fr))}
+.tile{background:var(--surface); border:1px solid var(--line); border-radius:12px;
+  padding:20px 20px 18px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:7px}
+.tile .num{font-size:38px; font-weight:700; line-height:1; letter-spacing:-.03em;
+  font-variant-numeric:tabular-nums; color:var(--pink)}
+.tile .cap{font-family:Poppins,sans-serif; font-size:12.5px; font-weight:600; color:var(--ink)}
+.tile .sub{font-size:14px; line-height:1.45; color:var(--muted)}
+
+/* tables */
+.scroll{overflow-x:auto; border:1px solid var(--line); border-radius:12px; background:var(--surface);
+  box-shadow:var(--shadow)}
+table{border-collapse:collapse; width:100%; min-width:640px; font-size:14.5px}
+caption{caption-side:top; text-align:left; padding:16px 18px 0;
+  font-family:Poppins,sans-serif; font-size:13px; font-weight:600; color:var(--ink)}
+caption span{font-family:Barlow,sans-serif; font-weight:400; color:var(--muted)}
+th,td{padding:9px 14px; text-align:right; border-bottom:1px solid var(--line); white-space:nowrap}
+th:first-child,td:first-child{text-align:left; white-space:normal}
+thead th{font-family:Poppins,sans-serif; font-size:11px; font-weight:600; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--muted); padding-top:14px; vertical-align:bottom}
+tbody tr:last-child td{border-bottom:none}
+tbody td:first-child{color:var(--ink); font-weight:500}
+td.figure{font-variant-numeric:tabular-nums}
+td.key{color:var(--ink); font-weight:600; background:var(--surface-2)}
+th.key{background:var(--surface-2)}
+
+/* chart */
+.chart{background:var(--surface); border:1px solid var(--line); border-radius:12px;
+  padding:20px 20px 8px; box-shadow:var(--shadow)}
+.legend{display:flex; flex-wrap:wrap; gap:18px; align-items:center; margin-bottom:20px;
+  font-size:13px; color:var(--body)}
+.legend i{display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:7px;
+  vertical-align:-1px}
+.legend .lg-ctc{width:2px; height:13px; border-radius:1px; vertical-align:-2px}
+.plot{position:relative}
+.row{display:grid; grid-template-columns:minmax(96px,168px) 1fr; gap:14px; align-items:center;
+  padding:11px 0; border-top:1px solid var(--line)}
+.row:first-child{border-top:none}
+.rname{font-size:13.5px; color:var(--ink); font-weight:500; line-height:1.25}
+.track{position:relative; height:26px}
+.track::before{content:""; position:absolute; left:0; right:0; top:12px; height:2px;
+  background:var(--rail); border-radius:1px}
+.bar{position:absolute; top:12px; height:2px; border-radius:1px; background:var(--blue)}
+.dot{position:absolute; top:6px; width:14px; height:14px; border-radius:50%;
+  margin-left:-7px; border:2px solid var(--surface)}
+.d-nat{background:var(--blue)}
+.d-soc{background:var(--pink)}
+.dot span{position:absolute; left:50%; transform:translateX(-50%); bottom:20px;
+  font-size:11.5px; font-variant-numeric:tabular-nums; color:var(--ink); font-weight:600;
+  background:var(--surface); padding:1px 4px; border-radius:4px; border:1px solid var(--line);
+  opacity:0; transition:opacity .12s; pointer-events:none; white-space:nowrap}
+.dot:hover span,.dot:focus span{opacity:1}
+.dot:focus{outline:2px solid var(--ink); outline-offset:2px}
+.vline{position:absolute; top:-11px; bottom:-11px; width:2px; background:var(--ink); opacity:.34}
+.reflabels{position:relative; height:20px}
+.vlab{position:absolute; bottom:2px; font-size:11px; font-family:Poppins,sans-serif; font-weight:600;
+  color:var(--ink); transform:translateX(-50%); white-space:nowrap}
+.axis{position:relative; height:30px; margin-top:6px; border-top:1px solid var(--line)}
+.axis span{position:absolute; top:7px; transform:translateX(-50%); font-size:11.5px;
+  color:var(--muted); font-variant-numeric:tabular-nums}
+.axhead{display:grid; grid-template-columns:minmax(96px,168px) 1fr; gap:14px}
+
+/* findings */
+.finding{background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--pink);
+  border-radius:10px; padding:18px 20px; display:flex; flex-direction:column; gap:8px;
+  box-shadow:var(--shadow)}
+.chip{align-self:flex-start; font-family:Poppins,sans-serif; font-size:10.5px; font-weight:600;
+  letter-spacing:.11em; text-transform:uppercase; padding:3px 9px; border-radius:20px;
+  background:var(--pink-soft); color:var(--ink)}
+.finding p{font-size:15px; max-width:70ch}
+.callout{background:var(--warn-bg); border:1px solid var(--warn-line); border-radius:10px;
+  padding:16px 18px; color:var(--warn-ink); font-size:15px}
+.callout b{color:var(--warn-ink)}
+
+/* method */
+.method{border-top:1px solid var(--line); padding-top:22px; font-size:13.5px; color:var(--muted);
+  display:flex; flex-direction:column; gap:10px}
+.method a{color:var(--blue); text-decoration:none; border-bottom:1px solid var(--blue-soft)}
+.method a:hover{border-bottom-color:var(--blue)}
+.srcs{display:flex; flex-wrap:wrap; gap:6px 14px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Coast to Coast Conferences &amp; Events · Rate Review</p>
+    <div class="rule"></div>
+    <h1 style="margin-top:26px">What the market pays event staff in&nbsp;2027</h1>
+    <p class="standfirst">Benchmarks for five roles, national and Southern California, converted
+      into the three numbers that actually drive a P&amp;L: salary, true cost per hour, and what
+      an agency bills for it. <b>The short version: our cost rates are defensible, our billing
+      rates are not.</b></p>
+  </header>
+
+  <section>
+    <div class="tiles">
+      <div class="tile">
+        <span class="num">1.5&times;</span>
+        <span class="cap">Our billing multiplier</span>
+        <span class="sub">We bill $90 against a $60 cost. Agency convention is 2.5–3&times;.</span>
+      </div>
+      <div class="tile">
+        <span class="num">$42</span>
+        <span class="cap">Matches a 2,080-hour basis exactly</span>
+        <span class="sub">Our coordinator rate assumes every paid hour is billable. Most agencies
+          run 75%.</span>
+      </div>
+      <div class="tile">
+        <span class="num">1%</span>
+        <span class="cap">Overhead as a share of a manager hour</span>
+        <span class="sub">$0.61/hr. Agency overhead typically runs 15–30% of direct labor.</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>National rate card, 2027</h2>
+    <p class="lede">2026 aggregator medians carried forward 3.5%. <b>Cost @ 2,080</b> spreads
+      salary plus 30% burden over every paid hour; <b>true cost</b> spreads it over 1,560 billable
+      hours, the 75% utilization agencies plan around.</p>
+    <div class="scroll">
+      <table>
+        <caption>United States <span>· salary + 30% burden</span></caption>
+        <thead>
+          <tr><th>Role</th><th>Salary range</th><th>Cost @ 2,080</th><th class="key">True cost / hr</th>
+              <th>Bill @ 2.5&times;</th><th>Bill @ 3&times;</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Senior Event Manager</td><td class="figure">$98K – $119K</td><td class="figure">$68</td><td class="figure key">$91</td><td class="figure">$226</td><td class="figure">$272</td></tr>
+          <tr><td>Event Manager</td><td class="figure">$78K – $98K</td><td class="figure">$55</td><td class="figure key">$73</td><td class="figure">$183</td><td class="figure">$220</td></tr>
+          <tr><td>Lead Event Coordinator</td><td class="figure">$67K – $81K</td><td class="figure">$46</td><td class="figure key">$62</td><td class="figure">$154</td><td class="figure">$185</td></tr>
+          <tr><td>Event Coordinator</td><td class="figure">$54K – $66K</td><td class="figure">$38</td><td class="figure key">$50</td><td class="figure">$125</td><td class="figure">$150</td></tr>
+          <tr><td>Admin Assistant</td><td class="figure">$47K – $58K</td><td class="figure">$33</td><td class="figure key">$44</td><td class="figure">$109</td><td class="figure">$131</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Southern California rate card, 2027</h2>
+    <p class="lede">Same basis, plus the 12% premium for the LA / Orange County / Palm Springs
+      market where we actually staff.</p>
+    <div class="scroll">
+      <table>
+        <caption>Southern California <span>· national +12%</span></caption>
+        <thead>
+          <tr><th>Role</th><th>Salary range</th><th>Cost @ 2,080</th><th class="key">True cost / hr</th>
+              <th>Bill @ 2.5&times;</th><th>Bill @ 3&times;</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Senior Event Manager</td><td class="figure">$110K – $133K</td><td class="figure">$76</td><td class="figure key">$101</td><td class="figure">$254</td><td class="figure">$304</td></tr>
+          <tr><td>Event Manager</td><td class="figure">$87K – $110K</td><td class="figure">$62</td><td class="figure key">$82</td><td class="figure">$205</td><td class="figure">$246</td></tr>
+          <tr><td>Lead Event Coordinator</td><td class="figure">$75K – $90K</td><td class="figure">$52</td><td class="figure key">$69</td><td class="figure">$173</td><td class="figure">$207</td></tr>
+          <tr><td>Event Coordinator</td><td class="figure">$60K – $74K</td><td class="figure">$42</td><td class="figure key">$56</td><td class="figure">$140</td><td class="figure">$168</td></tr>
+          <tr><td>Admin Assistant</td><td class="figure">$52K – $65K</td><td class="figure">$37</td><td class="figure key">$49</td><td class="figure">$122</td><td class="figure">$146</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Where our two cost rates land</h2>
+    <p class="lede">True cost per hour by role, against the $60 manager and $42 coordinator rates
+      in the P&amp;L. Both rates cover their role nationally. Neither covers it in Southern
+      California.</p>
+    <div class="chart">
+      <div class="legend">
+        <span><i class="d-nat"></i>National true cost</span>
+        <span><i class="d-soc"></i>SoCal true cost</span>
+        <span><i class="lg-ctc" style="background:var(--ink);opacity:.5"></i>Our current rate</span>
+      </div>
+      <div class="axhead">
+        <div></div>
+        <div class="reflabels">
+          <div class="vlab" style="left:38.2%">$42 coord</div>
+          <div class="vlab" style="left:54.5%">$60 mgr</div>
+        </div>
+      </div>
+
+      <div class="row"><div class="rname">Senior Event&nbsp;Manager</div><div class="track"><div class="vline" style="left:38.2%"></div><div class="vline" style="left:54.5%"></div>
+        <div class="bar" style="left:82.7%; right:8.2%"></div>
+        <div class="dot d-nat" style="left:82.7%" tabindex="0" role="img" aria-label="Senior Event Manager, national true cost $91 per hour"><span>National $91</span></div>
+        <div class="dot d-soc" style="left:91.8%" tabindex="0" role="img" aria-label="Senior Event Manager, SoCal true cost $101 per hour"><span>SoCal $101</span></div>
+      </div></div>
+
+      <div class="row"><div class="rname">Event Manager</div><div class="track"><div class="vline" style="left:38.2%"></div><div class="vline" style="left:54.5%"></div>
+        <div class="bar" style="left:66.4%; right:25.5%"></div>
+        <div class="dot d-nat" style="left:66.4%" tabindex="0" role="img" aria-label="Event Manager, national true cost $73 per hour"><span>National $73</span></div>
+        <div class="dot d-soc" style="left:74.5%" tabindex="0" role="img" aria-label="Event Manager, SoCal true cost $82 per hour"><span>SoCal $82</span></div>
+      </div></div>
+
+      <div class="row"><div class="rname">Lead Event&nbsp;Coordinator</div><div class="track"><div class="vline" style="left:38.2%"></div><div class="vline" style="left:54.5%"></div>
+        <div class="bar" style="left:56.4%; right:37.3%"></div>
+        <div class="dot d-nat" style="left:56.4%" tabindex="0" role="img" aria-label="Lead Event Coordinator, national true cost $62 per hour"><span>National $62</span></div>
+        <div class="dot d-soc" style="left:62.7%" tabindex="0" role="img" aria-label="Lead Event Coordinator, SoCal true cost $69 per hour"><span>SoCal $69</span></div>
+      </div></div>
+
+      <div class="row"><div class="rname">Event Coordinator</div><div class="track"><div class="vline" style="left:38.2%"></div><div class="vline" style="left:54.5%"></div>
+        <div class="bar" style="left:45.5%; right:49.1%"></div>
+        <div class="dot d-nat" style="left:45.5%" tabindex="0" role="img" aria-label="Event Coordinator, national true cost $50 per hour"><span>National $50</span></div>
+        <div class="dot d-soc" style="left:50.9%" tabindex="0" role="img" aria-label="Event Coordinator, SoCal true cost $56 per hour"><span>SoCal $56</span></div>
+      </div></div>
+
+      <div class="row"><div class="rname">Admin Assistant</div><div class="track"><div class="vline" style="left:38.2%"></div><div class="vline" style="left:54.5%"></div>
+        <div class="bar" style="left:40.0%; right:55.5%"></div>
+        <div class="dot d-nat" style="left:40.0%" tabindex="0" role="img" aria-label="Admin Assistant, national true cost $44 per hour"><span>National $44</span></div>
+        <div class="dot d-soc" style="left:44.5%" tabindex="0" role="img" aria-label="Admin Assistant, SoCal true cost $49 per hour"><span>SoCal $49</span></div>
+      </div></div>
+
+      <div class="axhead">
+        <div></div>
+        <div class="axis">
+          <span style="left:0%">$0</span><span style="left:22.7%">$25</span>
+          <span style="left:45.5%">$50</span><span style="left:68.2%">$75</span>
+          <span style="left:90.9%">$100</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Three things to decide</h2>
+
+    <div class="finding">
+      <span class="chip">Utilization</span>
+      <h3>Is every paid hour a billable hour?</h3>
+      <p>Our $60 and $42 map almost exactly onto salary ÷ 2,080 hours for Event Manager and
+        Event Coordinator in Southern California — $42 is a dead-on match. That basis assumes
+        100% utilization. At the 75% most agencies plan around, true cost is <b>$82 and $56</b>,
+        and the P&amp;L is understating cost by about a third. This one assumption decides
+        whether we run 40% margins or single digits.</p>
+    </div>
+
+    <div class="finding">
+      <span class="chip">Billing</span>
+      <h3>Our markup is roughly half the standard</h3>
+      <p>We bill $90 for a manager hour that costs us $60 — a 1.5&times; multiplier, against an
+        agency convention of 2.5–3&times;. Market billing for corporate event work runs
+        <b>$75–$250+/hr</b>, senior planners above $150, with corporate commanding about 30%
+        over social. Our $90 / $65 sits at the bottom of that range.</p>
+    </div>
+
+    <div class="finding">
+      <span class="chip">Overhead</span>
+      <h3>$0.61 an hour is not overhead</h3>
+      <p>It is 1% of a manager hour. Real agency overhead — rent, software, insurance,
+        non-billable admin salaries, business development — runs 15–30% of direct labor. If
+        $0.61 is a specific pass-through such as a software seat, fine. If it is meant to carry
+        our true overhead, it is short by roughly an order of magnitude, and hiring an Admin
+        Assistant makes it worse, since that salary is pure overhead unless we bill it out.</p>
+    </div>
+
+    <div class="callout">
+      <b>Why this matters right now.</b> Moving cost rates to $60 / $42 and adding the overhead
+      line already cost about six points of margin against our last four P&amp;Ls — LCT fell from
+      41% to 35%, AFCI from 47% to 42%. The 2% admin fee returns about one. Holding historical
+      margin means client rates move too.
+    </div>
+  </section>
+
+  <section class="method">
+    <p><b style="color:var(--ink)">Method.</b> 2026 US medians from the salary aggregators below,
+      carried forward 3.5% to 2027. Cost per hour = salary midpoint × 1.30 burden (payroll tax,
+      benefits, PTO, insurance), divided by 2,080 paid hours or 1,560 billable hours. Southern
+      California = national × 1.12.</p>
+    <p><b style="color:var(--ink)">Confidence.</b> Aggregators disagree substantially — Event
+      Coordinator came back anywhere from $50,890 to $63,569 depending on source and methodology.
+      Treat every figure as the middle of a range, not a point. "Senior Event Manager" is not a
+      standardized title; it is built from Meeting/Event Manager and the 75th percentile of Event
+      Manager.</p>
+    <p class="srcs">
+      <a href="https://careers.usnews.com/best-jobs/meeting-convention-and-event-planner/salary">US News</a>
+      <a href="https://www.salary.com/research/salary/benchmark/meeting-event-manager-salary">Salary.com · Event Manager</a>
+      <a href="https://www.salary.com/research/salary/listing/event-coordinator-salary">Salary.com · Coordinator</a>
+      <a href="https://www.glassdoor.com/Salaries/senior-events-coordinator-salary-SRCH_KO0,25.htm">Glassdoor · Senior Coordinator</a>
+      <a href="https://www.glassdoor.com/Salaries/event-manager-salary-SRCH_KO0,13.htm">Glassdoor · Event Manager</a>
+      <a href="https://www.ziprecruiter.com/Salaries/Event-Coordinator-Salary">ZipRecruiter</a>
+      <a href="https://www.payscale.com/research/US/Job=Administrative_Assistant/Hourly_Rate">PayScale · Admin</a>
+      <a href="https://www.designrush.com/agency/digital-marketing/trends/event-planner-cost">DesignRush · Planner Cost</a>
+      <a href="https://eventplanning.com/how-to-charge-a-fee-for-your-event-planning-service/">EventPlanning.com · Fees</a>
+    </p>
+  </section>
+
+</div>

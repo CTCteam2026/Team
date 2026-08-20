@@ -149,6 +149,17 @@ managers and 8 coordinators; go past that and a red warning appears under the on
 rather than silently dropping people. The P&L is set to print landscape, fit to one page
 wide.
 
+## Rate benchmarks
+
+[`rate-benchmarks-2027.html`](rate-benchmarks-2027.html) — 2027 market rates for Senior Event
+Manager, Event Manager, Lead Event Coordinator, Event Coordinator and Admin Assistant, national
+and Southern California, with salary, true cost per hour and agency billing rate for each.
+Published at https://claude.ai/code/artifact/43877925-fa04-4043-9643-ca9434089cd9
+
+Headline: our $60 / $42 cost rates map onto salary ÷ 2,080 hours, which assumes 100%
+utilization. At the 75% agencies plan around, true SoCal cost is $82 / $56. And we bill at
+1.5x cost against an agency convention of 2.5–3x.
+
 ## Files
 
 | File | What it is |
@@ -156,6 +167,7 @@ wide.
 | `CTC_Conference_PL_Builder.xlsx` | The template. This is the deliverable. |
 | `build_pl_template.py` | Generates it. Edit the `SCOPE` list to change items or base weights, then re-run. |
 | `validate_against_history.py` | Back-test against the three reference events. |
+| `rate-benchmarks-2027.html` | 2027 market rate brief, national + SoCal. |
 
 ```bash
 python3 build_pl_template.py
