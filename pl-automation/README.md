@@ -161,6 +161,27 @@ paid hour is invoiced. At the 75% utilization agencies plan around, true SoCal c
 — which turns a 32–35% margin per hour into 9–14%. Separately we bill at about 2x base salary
 against a 2.5–3x convention. Staff pay itself is at market.
 
+## The true cost view
+
+INPUTS section 7 now carries two more cells: **Utilization %** and **Overhead % of direct
+labor**. They feed a TRUE COST block on the P&L beside the quoted numbers — true cost of
+delivery, true net profit, true net margin, and the client price that would hit the target
+margin.
+
+At the defaults (100% utilization, 0% overhead) true cost equals quoted cost to the cent, so
+nothing you already quote moves until you deliberately change them. Feed in a realistic basis
+and the picture changes hard:
+
+| Event | Quoted margin | True margin @ 80% util, 15% overhead | Price for 40% |
+|---|---|---|---|
+| LCT / Marine Recreation 2026 | 36.2% | **8.6%** | $53,395 |
+| AFCI Studio Summit 2027 | 36.3% | **8.7%** | $115,161 |
+| WTUI 2027 | 35.6% | **7.7%** | $209,464 |
+
+`python3 validate_against_history.py --basis=0.80,0.15` reproduces that table. The 80/15 basis
+is an assumption, not a measurement — which is exactly why step 1 of the rate decision is to
+measure it.
+
 ## The rate decision
 
 [`rate-decision-2027.html`](rate-decision-2027.html) — what to do about the above, in order.
