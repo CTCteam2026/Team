@@ -156,9 +156,10 @@ Manager, Event Manager, Lead Event Coordinator, Event Coordinator and Admin Assi
 and Southern California, with salary, true cost per hour and agency billing rate for each.
 Published at https://claude.ai/code/artifact/43877925-fa04-4043-9643-ca9434089cd9
 
-Headline: our $60 / $42 cost rates map onto salary ÷ 2,080 hours, which assumes 100%
-utilization. At the 75% agencies plan around, true SoCal cost is $82 / $56. And we bill at
-1.5x cost against an agency convention of 2.5–3x.
+Headline: our $60 / $42 cost rates are salary + burden ÷ 2,080 paid hours, which assumes every
+paid hour is invoiced. At the 75% utilization agencies plan around, true SoCal cost is $82 / $56
+— which turns a 32–35% margin per hour into 9–14%. Separately we bill at about 2x base salary
+against a 2.5–3x convention. Staff pay itself is at market.
 
 ## Files
 
