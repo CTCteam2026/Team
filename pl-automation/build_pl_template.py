@@ -14,6 +14,8 @@ import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
+from openpyxl.formatting.rule import Rule
+from openpyxl.styles.differential import DifferentialStyle
 
 OUT = "CTC_Conference_PL_Builder.xlsx"
 
@@ -182,15 +184,17 @@ lab(iw, "B48", "Staff Overhead per hour", bold=True); inp(iw, "C48", 0.61, RATE)
 lab(iw, "B49", "Admin Fee %", bold=True);             inp(iw, "C49", 0.02, "0.0%")
 lab(iw, "B50", "Multi-Year Discount %");              inp(iw, "C50", 0.05, "0.0%")
 lab(iw, "B51", "Apply Multi-Year Discount?");         inp(iw, "C51", "No")
+lab(iw, "B52", "Target Net Margin %", bold=True);          inp(iw, "C52", 0.40, "0.0%")
+note(iw, "D52", "Used by the margin check on the P&L — what client price hits this margin.")
 note(iw, "D48", "Charged against every CTC staff hour. A cost to us — not billed.")
 note(iw, "D49", "2% of the client subtotal, added to the client price. No cost against it.")
 note(iw, "D50", "The '5% off additional years' line, off unless switched on below.")
 
-band(iw, 53, 2, 4, "8.  ONSITE ROLE TITLES")
-note(iw, "D54", "Only the first N lines are used, where N is the headcount in section 4. "
+band(iw, 54, 2, 4, "8.  ONSITE ROLE TITLES")
+note(iw, "D55", "Only the first N lines are used, where N is the headcount in section 4. "
                 "Titles are labels only — rates come from section 5.")
-lab(iw, "B54", "ONSITE MANAGERS", bold=True)
-MGR_ROW1 = 55
+lab(iw, "B55", "ONSITE MANAGERS", bold=True)
+MGR_ROW1 = 56
 for i, t in enumerate(["Project Manager", "Event Manager", "Executive Producer",
                        "Registration Manager", "Housing / Expo Manager",
                        "Production Manager", "Manager 7", "Manager 8",
@@ -198,7 +202,7 @@ for i, t in enumerate(["Project Manager", "Event Manager", "Executive Producer",
     lab(iw, f"B{MGR_ROW1+i}", f"    Manager {i+1}")
     inp(iw, f"C{MGR_ROW1+i}", t)
 
-CRD_ROW1 = 66
+CRD_ROW1 = 67
 lab(iw, f"B{CRD_ROW1-1}", "ONSITE COORDINATORS", bold=True)
 for i, t in enumerate(["Event Coordinator", "Registration Coordinator",
                        "Office Manager", "Production Assistant",
@@ -223,20 +227,16 @@ R_MGR, R_CRD = N+"33", N+"34"
 R_MGR_CL, R_CRD_CL = N+"35", N+"36"
 R_MGR_ON, R_CRD_ON, OT_X = N+"37", N+"38", N+"39"
 H_MGR, H_CRD, H_OT, H_TRV = N+"42", N+"43", N+"44", N+"45"
-OVH, FEE, DISC, DISC_ON = N+"48", N+"49", N+"50", N+"51"
+OVH, FEE, DISC, DISC_ON, TGT = N+"48", N+"49", N+"50", N+"51", N+"52"
 
 # ============================================================== SCOPE ========
 # (top level, sub-item, staff, driver kind, weight, driver text)
 S_ = "SCALE"; W_ = "WEEKS"; C_ = "COUNT"
 SCOPE = [
- ("PLANNING, TIMELINE & COMMUNICATIONS", "Project Management System (ClickUp & Google Drive)",
-  "Coordinator", W_, 1.0, "1 hr per planning week"),
- ("PLANNING, TIMELINE & COMMUNICATIONS", "Meetings, Minutes & Agendas",
-  "Team", W_, 1.0, "1 hr per planning week, whole team"),
- ("PLANNING, TIMELINE & COMMUNICATIONS", "Roles & Responsibilities",
-  "Manager", S_, 5, "5 x scale index"),
- ("PLANNING, TIMELINE & COMMUNICATIONS", "Communication & Approvals",
-  "Manager", W_, 1.0, "1 hr per planning week"),
+ ("PLANNING, TIMELINE & COMMUNICATIONS",
+  "Project management system, meetings & minutes, roles, approvals",
+  "Team", "PLAN", 0,
+  "3 hrs per planning week + 5 x scale index"),
 
  ("VENUE SOURCING", "Request for Proposal", "Manager", S_, 6, "6 x scale index"),
  ("VENUE SOURCING", "Venue/Hotel Analysis", "Manager", S_, 6, "6 x scale index"),
@@ -334,78 +334,119 @@ for t, *_ in SCOPE:
     if t not in TOPS:
         TOPS.append(t)
 
+# Interleave a banded heading row above each category's sub-items.
+LAYOUT = []                      # (kind, payload) where kind is "head" or "item"
+for top in TOPS:
+    LAYOUT.append(("head", top))
+    for row in SCOPE:
+        if row[0] == top:
+            LAYOUT.append(("item", row))
+
 sc = wb.create_sheet("SCOPE")
 sc.sheet_view.showGridLines = False
 F1 = 4
-FN = F1 + len(SCOPE) - 1
+FN = F1 + len(LAYOUT) - 1
+HEAD_ROWS = {F1 + i: p for i, (k, p) in enumerate(LAYOUT) if k == "head"}
 
-titlebar(sc, 1, 1, 13, "SCOPE OF WORK  —  matches the 2026 Master Proposal Template")
-note(sc, "B2", "Set INCLUDE? on every line. Hours calculate from the INPUTS tab; type a "
-               "number into OVERRIDE HOURS to force a line. The P&L rolls these up to the "
-               "top-level headings.")
-headers(sc, 3, 1, ["#", "SCOPE OF WORK ITEM", "TOP-LEVEL HEADING", "STAFF",
-                   "INCLUDE?", "HOW THE HOURS ARE CALCULATED", "CALC.\nHOURS",
-                   "OVERRIDE\nHOURS", "HOURS\nUSED", "CLIENT\nRATE", "OUR\nRATE",
-                   "CLIENT\nCOST", "OUR\nCOST"])
-sc.row_dimensions[3].height = 32
+titlebar(sc, 1, 1, 13, "SCOPE OF WORK")
+note(sc, "B2", "Headings are grey; the lines underneath are what you switch on. Hours "
+               "calculate from the INPUTS tab — type a number into OVERRIDE HOURS to force "
+               "any line. The P&L reports at heading level.")
+headers(sc, 3, 1, ["#", "SCOPE OF WORK", "STAFF", "INCLUDE?",
+                   "HOW THE HOURS ARE CALCULATED", "CALC.\nHOURS",
+                   "OVERRIDE\nHOURS", "HOURS\nUSED", "CLIENT\nRATE",
+                   "OUR\nRATE", "CLIENT\nCOST", "OUR\nCOST", "HEADING"])
+sc.row_dimensions[3].height = 30
 
 dvs = DataValidation(type="list", formula1='"Yes,No"', allow_blank=False)
 sc.add_data_validation(dvs)
 
-for n, (top, item, staff, kind, wgt, dtext) in enumerate(SCOPE):
-    r = F1 + n
-    if kind == S_:
+# the always-on planning line prices three different rate bands in one row
+PLAN_HRS = f"3*{WEEKS}+ROUND(5*{ESI},0)"
+PLAN_CL = (f"({WEEKS}*({PRE_M}*{R_MGR_CL}+{PRE_C}*{R_CRD_CL})+{WEEKS}*{R_CRD_CL}"
+           f"+({WEEKS}+ROUND(5*{ESI},0))*{R_MGR_CL})")
+PLAN_OU = (f"({WEEKS}*({PRE_M}*{R_MGR}+{PRE_C}*{R_CRD})+{WEEKS}*{R_CRD}"
+           f"+({WEEKS}+ROUND(5*{ESI},0))*{R_MGR})")
+
+n_item = 0
+for i, (kind, payload) in enumerate(LAYOUT):
+    r = F1 + i
+    if kind == "head":
+        sc.cell(row=r, column=2, value=payload)
+        for col in range(1, 14):
+            cell = sc.cell(row=r, column=col)
+            cell.fill = PatternFill("solid", fgColor="D9D9D9")
+            cell.font = Font(name=HEAD_FONT, size=10, bold=True, color="1F1F1F")
+            cell.border = Border(top=Side(style="medium", color="808080"),
+                                 bottom=Side(style="thin", color="808080"))
+        sc.row_dimensions[r].height = 17
+        continue
+
+    top, item, staff, kind_d, wgt, dtext = payload
+    n_item += 1
+    if kind_d == "PLAN":
+        f = f"={PLAN_HRS}"
+    elif kind_d == S_:
         f = f"=ROUND({wgt}*{ESI},0)"
-    elif kind == W_:
+    elif kind_d == W_:
         f = f"=ROUND({wgt}*{WEEKS},0)"
     else:
-        f = f"=ROUND({wgt}*{kind.split(':')[1]},0)"
-    on = (top in DEFAULT_YES) and (item not in DEFAULT_NO_ITEMS)
-    sc.cell(row=r, column=1, value=n + 1).number_format = "0"
-    sc.cell(row=r, column=2, value=f"{top}: {item}")
-    sc.cell(row=r, column=3, value=top)
-    sc.cell(row=r, column=4, value=staff)
-    c = sc.cell(row=r, column=5, value="Yes" if on else "No")
-    c.fill = PatternFill("solid", fgColor=INPUT_FILL)
-    c.font = Font(name=BODY_FONT, size=10, bold=True, color=INPUT_TXT)
-    dvs.add(c)
-    sc.cell(row=r, column=6, value=dtext)
-    sc.cell(row=r, column=7, value=f).number_format = HRS
-    o = sc.cell(row=r, column=8)
+        f = f"=ROUND({wgt}*{kind_d.split(':')[1]},0)"
+    always = kind_d == "PLAN"
+    on = always or ((top in DEFAULT_YES) and (item not in DEFAULT_NO_ITEMS))
+
+    sc.cell(row=r, column=1, value=n_item).number_format = "0"
+    sc.cell(row=r, column=2, value="      " + item)
+    sc.cell(row=r, column=3, value=staff)
+    c = sc.cell(row=r, column=4, value="Yes" if on else "No")
+    if always:
+        c.fill = PatternFill("solid", fgColor=GREY)
+        c.font = Font(name=BODY_FONT, size=10, bold=True, color="595959")
+    else:
+        c.fill = PatternFill("solid", fgColor=INPUT_FILL)
+        c.font = Font(name=BODY_FONT, size=10, bold=True, color=INPUT_TXT)
+        dvs.add(c)
+    c.alignment = Alignment(horizontal="center")
+    sc.cell(row=r, column=5, value=dtext + (" — always included" if always else ""))
+    sc.cell(row=r, column=6, value=f).number_format = HRS
+    o = sc.cell(row=r, column=7)
     o.fill = PatternFill("solid", fgColor=INPUT_FILL)
     o.font = Font(name=BODY_FONT, size=10, bold=True, color=INPUT_TXT)
     o.number_format = HRS
-    sc.cell(row=r, column=9,
-            value=f"=IF(ISNUMBER(H{r}),H{r},G{r})").number_format = HRS
-    sc.cell(row=r, column=10, value=(
-        f'=IF(D{r}="Manager",{R_MGR_CL},IF(D{r}="Coordinator",{R_CRD_CL},'
-        f'{PRE_M}*{R_MGR_CL}+{PRE_C}*{R_CRD_CL}))')).number_format = RATE
-    sc.cell(row=r, column=11, value=(
-        f'=IF(D{r}="Manager",{R_MGR},IF(D{r}="Coordinator",{R_CRD},'
-        f'{PRE_M}*{R_MGR}+{PRE_C}*{R_CRD}))')).number_format = RATE
+    sc.cell(row=r, column=8,
+            value=f"=IF(ISNUMBER(G{r}),G{r},F{r})").number_format = HRS
+    if always:
+        sc.cell(row=r, column=9,
+                value=f'=IF(H{r}=0,"",{PLAN_CL}/H{r})').number_format = RATE
+        sc.cell(row=r, column=10,
+                value=f'=IF(H{r}=0,"",{PLAN_OU}/H{r})').number_format = RATE
+    else:
+        sc.cell(row=r, column=9, value=(
+            f'=IF(C{r}="Manager",{R_MGR_CL},IF(C{r}="Coordinator",{R_CRD_CL},'
+            f'{PRE_M}*{R_MGR_CL}+{PRE_C}*{R_CRD_CL}))')).number_format = RATE
+        sc.cell(row=r, column=10, value=(
+            f'=IF(C{r}="Manager",{R_MGR},IF(C{r}="Coordinator",{R_CRD},'
+            f'{PRE_M}*{R_MGR}+{PRE_C}*{R_CRD}))')).number_format = RATE
+    sc.cell(row=r, column=11,
+            value=f'=IF(D{r}="Yes",H{r}*I{r},0)').number_format = MONEY
     sc.cell(row=r, column=12,
-            value=f'=IF(E{r}="Yes",I{r}*J{r},0)').number_format = MONEY
-    sc.cell(row=r, column=13,
-            value=f'=IF(E{r}="Yes",I{r}*K{r},0)').number_format = MONEY
+            value=f'=IF(D{r}="Yes",H{r}*J{r},0)').number_format = MONEY
+    sc.cell(row=r, column=13, value=top)
     for col in range(1, 14):
         cell = sc.cell(row=r, column=col)
         cell.border = BOX
         if cell.font.name != BODY_FONT:
             cell.font = Font(name=BODY_FONT, size=10)
-        cell.alignment = Alignment(wrap_text=(col in (2, 6)), vertical="center")
-    if n and SCOPE[n - 1][0] != top:            # first line of a new heading
-        for col in range(1, 14):
-            sc.cell(row=r, column=col).border = Border(
-                left=thin, right=thin, bottom=thin,
-                top=Side(style="medium", color="808080"))
+        if col in (2, 5):
+            cell.alignment = Alignment(wrap_text=True, vertical="center")
 
 TR = FN + 1
 sc.cell(row=TR, column=2, value="TOTAL — INCLUDED SCOPE")
-sc.cell(row=TR, column=9, value=f'=SUMIF($E${F1}:$E${FN},"Yes",$I${F1}:$I${FN})')
-sc.cell(row=TR, column=12, value=f"=SUM(L{F1}:L{FN})")
-sc.cell(row=TR, column=13, value=f"=SUM(M{F1}:M{FN})")
-sc.cell(row=TR, column=9).number_format = HRS
-for col in (12, 13):
+sc.cell(row=TR, column=8, value=f'=SUMIF($D${F1}:$D${FN},"Yes",$H${F1}:$H${FN})')
+sc.cell(row=TR, column=11, value=f'=SUMIF($D${F1}:$D${FN},"Yes",$K${F1}:$K${FN})')
+sc.cell(row=TR, column=12, value=f'=SUMIF($D${F1}:$D${FN},"Yes",$L${F1}:$L${FN})')
+sc.cell(row=TR, column=8).number_format = HRS
+for col in (11, 12):
     sc.cell(row=TR, column=col).number_format = MONEY
 for col in range(1, 14):
     cell = sc.cell(row=TR, column=col)
@@ -413,48 +454,49 @@ for col in range(1, 14):
     cell.font = Font(name=BODY_FONT, size=10, bold=True)
     cell.fill = PatternFill("solid", fgColor=PINK)
 
-# --- rollup helper block (columns P:U)
-band(sc, 3, 16, 21, "TOP-LEVEL ROLL-UP  (feeds the P&L)")
+# --- roll-up helper block (columns O:T), one row per heading
+band(sc, 3, 15, 20, "HEADING ROLL-UP  —  feeds the P&L, nothing to edit")
 R1 = 4
 RN = R1 + len(TOPS) - 1
 for n, top in enumerate(TOPS):
     r = R1 + n
-    sc.cell(row=r, column=16, value=top)
-    sc.cell(row=r, column=17, value=(
-        f'=SUMIFS($I${F1}:$I${FN},$C${F1}:$C${FN},$P{r},$E${F1}:$E${FN},"Yes")')
+    sc.cell(row=r, column=15, value=top)
+    sc.cell(row=r, column=16, value=(
+        f'=SUMIFS($H${F1}:$H${FN},$M${F1}:$M${FN},$O{r},$D${F1}:$D${FN},"Yes")')
     ).number_format = HRS
-    sc.cell(row=r, column=18, value=f"=SUMIF($C${F1}:$C${FN},$P{r},$L${F1}:$L${FN})"
-            ).number_format = MONEY
-    sc.cell(row=r, column=19, value=f"=SUMIF($C${F1}:$C${FN},$P{r},$M${F1}:$M${FN})"
-            ).number_format = MONEY
-    sc.cell(row=r, column=20,
-            value=f'=IF(Q{r}>0,COUNTIF($Q${R1}:Q{r},">0"),"")')
-    sc.cell(row=r, column=21, value=(
-        f'=IF(Q{r}=0,"",IF(SUMIFS($I${F1}:$I${FN},$C${F1}:$C${FN},$P{r},'
-        f'$E${F1}:$E${FN},"Yes",$D${F1}:$D${FN},"Manager")=Q{r},"PM",'
-        f'IF(SUMIFS($I${F1}:$I${FN},$C${F1}:$C${FN},$P{r},$E${F1}:$E${FN},"Yes",'
-        f'$D${F1}:$D${FN},"Coordinator")=Q{r},"EC","PM/EC")))'))
-    for col in range(16, 22):
+    sc.cell(row=r, column=17,
+            value=f"=SUMIF($M${F1}:$M${FN},$O{r},$K${F1}:$K${FN})").number_format = MONEY
+    sc.cell(row=r, column=18,
+            value=f"=SUMIF($M${F1}:$M${FN},$O{r},$L${F1}:$L${FN})").number_format = MONEY
+    sc.cell(row=r, column=19,
+            value=f'=IF(P{r}>0,COUNTIF($P${R1}:P{r},">0"),"")')
+    sc.cell(row=r, column=20, value=(
+        f'=IF(P{r}=0,"",IF(SUMIFS($H${F1}:$H${FN},$M${F1}:$M${FN},$O{r},'
+        f'$D${F1}:$D${FN},"Yes",$C${F1}:$C${FN},"Manager")=P{r},"PM",'
+        f'IF(SUMIFS($H${F1}:$H${FN},$M${F1}:$M${FN},$O{r},$D${F1}:$D${FN},"Yes",'
+        f'$C${F1}:$C${FN},"Coordinator")=P{r},"EC","PM/EC")))'))
+    for col in range(15, 21):
         cell = sc.cell(row=r, column=col)
         cell.border = BOX
         cell.font = Font(name=BODY_FONT, size=10)
-headers(sc, 3, 16, ["TOP-LEVEL HEADING", "HOURS", "CLIENT COST", "OUR COST",
-                    "SEQ", "STAFF"])
+headers(sc, 3, 15, ["HEADING", "HOURS", "CLIENT COST", "OUR COST", "SEQ", "STAFF"])
 
-for col, w in {1: 5, 2: 52, 3: 34, 4: 12, 5: 10, 6: 30, 7: 9, 8: 10, 9: 9,
-               10: 10, 11: 9, 12: 12, 13: 12, 14: 3, 15: 3,
-               16: 34, 17: 9, 18: 13, 19: 13, 20: 6, 21: 8}.items():
+for col, w in {1: 5, 2: 58, 3: 12, 4: 10, 5: 44, 6: 9, 7: 10, 8: 9,
+               10: 9, 9: 10, 11: 12, 12: 12, 13: 3, 14: 3,
+               15: 34, 16: 9, 17: 13, 18: 13, 19: 6, 20: 8}.items():
     sc.column_dimensions[get_column_letter(col)].width = w
+sc.column_dimensions["M"].hidden = True          # heading key, machinery only
 sc.freeze_panes = "B4"
 
 # ================================================================ P&L ========
+N_ONSITE = 8
 pl = wb.create_sheet("P&L", 0)
 pl.sheet_view.showGridLines = False
 SS = "SCOPE!"
-SEQ = f"{SS}$T${R1}:$T${RN}"
+SEQ = f"{SS}$S${R1}:$S${RN}"
 
 R_PRE, R_ON, R_OH, R_SUB, R_FEE, R_DISC, R_GT = 6, 7, 8, 9, 10, 11, 12
-CAT_H = 15
+CHK_B, CHK_H = 14, 15
 CAT_M, CAT_C, CAT_T, CAT_TOT = 16, 17, 18, 19
 EM_BAND, EM_H = 21, 22
 EM_1 = 23
@@ -463,10 +505,10 @@ EM_TOT = EM_N + 1
 ON_BAND = EM_TOT + 2
 ON_H = ON_BAND + 1
 M1 = ON_H + 1
-C1 = M1 + 10
-OT = C1 + 10
+C1 = M1 + N_ONSITE
+OT = C1 + N_ONSITE
 ON_TOT = OT + 1
-OH_BAND = ON_TOT + 2
+OH_BAND = ON_TOT + 3
 OH_H = OH_BAND + 1
 OH_PRE, OH_ON, OH_TOT = OH_H + 1, OH_H + 2, OH_H + 3
 
@@ -499,7 +541,6 @@ pl[f"B{R_SUB}"] = "TOTALS"
 for col in "CDE":
     pl[f"{col}{R_SUB}"] = f"=SUM({col}{R_PRE}:{col}{R_OH})"
 pl[f"F{R_SUB}"] = f'=IF(C{R_SUB}=0,"",E{R_SUB}/C{R_SUB})'
-
 pl[f"B{R_FEE}"] = f'="Admin Fee  ("&TEXT({FEE},"0.0%")&")"'
 pl[f"C{R_FEE}"] = f"=C{R_SUB}*{FEE}"
 pl[f"D{R_FEE}"] = 0
@@ -525,31 +566,29 @@ for r in range(R_PRE, R_GT + 1):
 for col in "BCDEF":
     pl[f"{col}{R_GT}"].border = DBL
 
-# --- pre-planning by category
-band(pl, 14, 2, 7, "PRE-PLANNING HOURS BY STAFF CATEGORY")
-headers(pl, CAT_H, 2, ["CATEGORY", "HOURS", "OUR RATE / HR", "OUR COST",
-                       "STAFF COUNT", "HRS / PERSON / WEEK"])
-pl.row_dimensions[CAT_H].height = 30
-for r, name, key, rate, cnt in (
-        (CAT_M, "Managers", "Manager", R_MGR, PRE_M),
-        (CAT_C, "Coordinators", "Coordinator", R_CRD, PRE_C)):
+# --- workload check (B:G) and margin check (H:J), side by side
+band(pl, CHK_B, 2, 7, "PRE-PLANNING WORKLOAD")
+band(pl, CHK_B, 8, 10, "MARGIN CHECK")
+headers(pl, CHK_H, 2, ["CATEGORY", "HOURS", "OUR RATE / HR", "OUR COST",
+                       "STAFF", "HRS / PERSON / WEEK"])
+headers(pl, CHK_H, 8, ["", "", ""])
+pl.row_dimensions[CHK_H].height = 28
+for r, name, key, cnt in ((CAT_M, "Managers", "Manager", PRE_M),
+                          (CAT_C, "Coordinators", "Coordinator", PRE_C),
+                          (CAT_T, "Team (project management & meetings)", "Team",
+                           f"{PRE_M}+{PRE_C}")):
     pl[f"B{r}"] = name
-    pl[f"C{r}"] = (f'=SUMIFS({SS}$I${F1}:$I${FN},{SS}$D${F1}:$D${FN},"{key}",'
-                   f'{SS}$E${F1}:$E${FN},"Yes")')
-    pl[f"D{r}"] = f"={rate}"
-    pl[f"E{r}"] = f"=C{r}*D{r}"
+    pl[f"C{r}"] = (f'=SUMIFS({SS}$H${F1}:$H${FN},{SS}$C${F1}:$C${FN},"{key}",'
+                   f'{SS}$D${F1}:$D${FN},"Yes")')
+    pl[f"E{r}"] = (f'=SUMIFS({SS}$L${F1}:$L${FN},{SS}$C${F1}:$C${FN},"{key}",'
+                   f'{SS}$D${F1}:$D${FN},"Yes")')
+    pl[f"D{r}"] = f'=IF(C{r}=0,"",E{r}/C{r})'
     pl[f"F{r}"] = f"={cnt}"
     pl[f"G{r}"] = f'=IF(OR(F{r}=0,{WEEKS}=0),"",C{r}/F{r}/{WEEKS})'
-pl[f"B{CAT_T}"] = "Team (weekly meetings)"
-pl[f"C{CAT_T}"] = (f'=SUMIFS({SS}$I${F1}:$I${FN},{SS}$D${F1}:$D${FN},"Team",'
-                   f'{SS}$E${F1}:$E${FN},"Yes")')
-pl[f"D{CAT_T}"] = f"={PRE_M}*{R_MGR}+{PRE_C}*{R_CRD}"
-pl[f"E{CAT_T}"] = f"=C{CAT_T}*D{CAT_T}"
-pl[f"F{CAT_T}"] = f"={PRE_M}+{PRE_C}"
-pl[f"G{CAT_T}"] = f'=IF({WEEKS}=0,"",C{CAT_T}/{WEEKS})'
 pl[f"B{CAT_TOT}"] = "TOTAL PRE-PLANNING"
 pl[f"C{CAT_TOT}"] = f"=SUM(C{CAT_M}:C{CAT_T})"
 pl[f"E{CAT_TOT}"] = f"=SUM(E{CAT_M}:E{CAT_T})"
+pl[f"D{CAT_TOT}"] = f'=IF(C{CAT_TOT}=0,"",E{CAT_TOT}/C{CAT_TOT})'
 pl[f"F{CAT_TOT}"] = f"={PRE_M}+{PRE_C}"
 for r in range(CAT_M, CAT_TOT + 1):
     for col in "BCDEFG":
@@ -563,24 +602,44 @@ for r in range(CAT_M, CAT_TOT + 1):
     pl[f"E{r}"].number_format = MONEY
     pl[f"F{r}"].number_format = HRS
     pl[f"G{r}"].number_format = '#,##0.0;;"-"'
-note(pl, f"B{CAT_TOT+1}", "HRS / PERSON / WEEK is the workload check — above roughly 10, "
-                          "add staff or trim scope.")
 
-# --- event management (top-level roll-up)
+MARGIN = [("Target net margin", f"={TGT}", PCT),
+          ("This P&L's net margin", f"=F{R_GT}", PCT),
+          ("Client price that hits target",
+           f'=IF({TGT}>=1,"",D{R_GT}/(1-{TGT}))', MONEY),
+          ("Gap vs grand total",
+           f'=IF({TGT}>=1,"",D{R_GT}/(1-{TGT})-C{R_GT})', MONEY)]
+for n, (name, formula, fmt) in enumerate(MARGIN):
+    r = CAT_M + n
+    pl[f"H{r}"] = name
+    pl[f"J{r}"] = formula
+    pl[f"J{r}"].number_format = fmt
+    for col in "HIJ":
+        pl[f"{col}{r}"].border = BOX
+        pl[f"{col}{r}"].font = Font(name=BODY_FONT, size=10,
+                                    bold=(n == 3))
+    if n == 3:
+        for col in "HIJ":
+            pl[f"{col}{r}"].fill = PatternFill("solid", fgColor=PINK)
+note(pl, f"B{CAT_TOT+1}",
+     "HRS / PERSON / WEEK above roughly 10 means the headcount is too thin for the scope. "
+     "A positive margin gap means the client price is short of the target margin.")
+
+# --- event management (heading roll-up)
 TBL = ["SCOPE OF WORK", "CLIENT RATE", "HOURS", "CLIENT COST", "OUR RATE",
        "HOURS", "OUR COST", "NET PROFIT", "% Profit"]
 band(pl, EM_BAND, 2, 10, "EVENT MANAGEMENT")
 headers(pl, EM_H, 2, TBL)
-pl.row_dimensions[EM_H].height = 28
+pl.row_dimensions[EM_H].height = 26
 for n in range(len(TOPS)):
     r = EM_1 + n
     m = f"MATCH({n+1},{SEQ},0)"
-    pl[f"A{r}"] = f'=IFERROR(INDEX({SS}$U${R1}:$U${RN},{m}),"")'
-    pl[f"B{r}"] = f'=IFERROR(INDEX({SS}$P${R1}:$P${RN},{m}),"")'
-    pl[f"D{r}"] = f'=IFERROR(INDEX({SS}$Q${R1}:$Q${RN},{m}),"")'
-    pl[f"E{r}"] = f'=IFERROR(INDEX({SS}$R${R1}:$R${RN},{m}),"")'
+    pl[f"A{r}"] = f'=IFERROR(INDEX({SS}$T${R1}:$T${RN},{m}),"")'
+    pl[f"B{r}"] = f'=IFERROR(INDEX({SS}$O${R1}:$O${RN},{m}),"")'
+    pl[f"D{r}"] = f'=IFERROR(INDEX({SS}$P${R1}:$P${RN},{m}),"")'
+    pl[f"E{r}"] = f'=IFERROR(INDEX({SS}$Q${R1}:$Q${RN},{m}),"")'
     pl[f"G{r}"] = f'=IF(B{r}="","",D{r})'
-    pl[f"H{r}"] = f'=IFERROR(INDEX({SS}$S${R1}:$S${RN},{m}),"")'
+    pl[f"H{r}"] = f'=IFERROR(INDEX({SS}$R${R1}:$R${RN},{m}),"")'
     pl[f"C{r}"] = f'=IF(OR(B{r}="",D{r}=0),"",E{r}/D{r})'
     pl[f"F{r}"] = f'=IF(OR(B{r}="",G{r}=0),"",H{r}/G{r})'
     pl[f"I{r}"] = f'=IF(B{r}="","",E{r}-H{r})'
@@ -593,10 +652,10 @@ pl[f"J{EM_TOT}"] = f'=IF(E{EM_TOT}=0,"",I{EM_TOT}/E{EM_TOT})'
 # --- onsite management
 band(pl, ON_BAND, 2, 10, "ONSITE MANAGEMENT")
 headers(pl, ON_H, 2, TBL)
-pl.row_dimensions[ON_H].height = 28
+pl.row_dimensions[ON_H].height = 26
 MGR_HRS = f"({EVD}+{SETD})*{H_MGR}+{TRVD}*{H_TRV}"
 CRD_HRS = f"({EVD}+{SETD})*{H_CRD}+{TRVD}*{H_TRV}"
-for i in range(10):
+for i in range(N_ONSITE):
     r = M1 + i
     on = f"{i+1}<={ON_M}"
     pl[f"A{r}"] = f'=IF({on},"PM","")'
@@ -604,7 +663,7 @@ for i in range(10):
     pl[f"C{r}"] = f'=IF({on},{R_MGR_ON},"")'
     pl[f"D{r}"] = f'=IF({on},{MGR_HRS},"")'
     pl[f"F{r}"] = f'=IF({on},{R_MGR},"")'
-for j in range(10):
+for j in range(N_ONSITE):
     r = C1 + j
     on = f"{j+1}<={ON_C}"
     pl[f"A{r}"] = f'=IF({on},"EC","")'
@@ -629,6 +688,11 @@ for col in ("D", "E", "G", "H", "I"):
     pl[f"{col}{ON_TOT}"] = f"=SUM({col}{M1}:{col}{OT})"
 pl[f"J{ON_TOT}"] = f'=IF(E{ON_TOT}=0,"",I{ON_TOT}/E{ON_TOT})'
 
+pl[f"B{ON_TOT+1}"] = (f'=IF(OR({ON_M}>{N_ONSITE},{ON_C}>{N_ONSITE}),'
+                      f'"WARNING: more than {N_ONSITE} managers or coordinators — '
+                      f'the extra people are NOT costed above.","")')
+pl[f"B{ON_TOT+1}"].font = Font(name=BODY_FONT, size=10, bold=True, color="C00000")
+
 for rng in (range(EM_1, EM_TOT + 1), range(M1, ON_TOT + 1)):
     for r in rng:
         tot = r in (EM_TOT, ON_TOT)
@@ -648,6 +712,14 @@ for rng in (range(EM_1, EM_TOT + 1), range(M1, ON_TOT + 1)):
                 cell.number_format = MONEY
             elif col == "J":
                 cell.number_format = PCT
+
+# blank out unused rows in both tables so they read as empty space
+blank = DifferentialStyle(font=Font(color="FFFFFF"), border=Border(),
+                          fill=PatternFill(bgColor="FFFFFF", fill_type="solid"))
+for first, last in ((EM_1, EM_N), (M1, OT - 1)):
+    rule = Rule(type="expression", dxf=blank, stopIfTrue=True)
+    rule.formula = [f'$B{first}=""']
+    pl.conditional_formatting.add(f"A{first}:J{last}", rule)
 
 # --- staff overhead
 band(pl, OH_BAND, 2, 5, "STAFF OVERHEAD")
@@ -677,10 +749,14 @@ note(pl, f"B{OH_TOT+2}", "Overhead is a CTC cost — not billed, so it comes out
 
 pl.column_dimensions["A"].width = 6.6
 pl.column_dimensions["B"].width = 49.1
-for col, w in {"C": 14.4, "D": 14.6, "E": 15.4, "F": 13.0, "G": 12.4,
-               "H": 14.9, "I": 13.2, "J": 9.9}.items():
+for col, w in {"C": 14.4, "D": 12.0, "E": 15.4, "F": 13.0, "G": 12.0,
+               "H": 15.4, "I": 13.2, "J": 9.9}.items():
     pl.column_dimensions[col].width = w
 pl.freeze_panes = "A5"
+pl.sheet_properties.pageSetUpPr.fitToPage = True
+pl.page_setup.orientation = "landscape"
+pl.page_setup.fitToWidth = 1
+pl.page_setup.fitToHeight = 0
 
 # =========================================================== HOW TO USE ======
 rd = wb.create_sheet("HOW TO USE")
