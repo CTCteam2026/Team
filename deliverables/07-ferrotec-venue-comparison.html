@@ -1,0 +1,938 @@
+<title>Blackhawk vs Ruby Hill</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=IBM+Plex+Mono:wght@400;500;600&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+
+<style>
+  :root {
+    --ground:      #F5F7F3;
+    --surface:     #FFFFFF;
+    --surface-2:   #EDF0EA;
+    --ink:         #15201B;
+    --ink-soft:    #566259;
+    --ink-faint:   #808C84;
+    --rule:        #D9E0D7;
+    --rule-strong: #B9C4B7;
+
+    --bh:          #1E5240;
+    --bh-wash:     #E4EFE8;
+    --rh:          #7A2E3D;
+    --rh-wash:     #F5E6E8;
+
+    --risk:        #B4442C;
+    --risk-wash:   #FBE7E0;
+    --watch:       #8A5A12;
+    --watch-wash:  #F8EEDA;
+    --fine:        #3A6B52;
+    --fine-wash:   #E3EFE7;
+
+    --shadow: 0 1px 2px rgba(21,32,27,.05), 0 8px 24px -12px rgba(21,32,27,.16);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:      #101613;
+      --surface:     #18201C;
+      --surface-2:   #1F2823;
+      --ink:         #E7EDE8;
+      --ink-soft:    #9DAAA1;
+      --ink-faint:   #7A867E;
+      --rule:        #2B3630;
+      --rule-strong: #3D4A43;
+
+      --bh:          #74C4A2;
+      --bh-wash:     #163026;
+      --rh:          #E68CA0;
+      --rh-wash:     #33191F;
+
+      --risk:        #E9906F;
+      --risk-wash:   #331C14;
+      --watch:       #DCAE5E;
+      --watch-wash:  #2E2411;
+      --fine:        #7FC79F;
+      --fine-wash:   #16261D;
+
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:      #101613;
+    --surface:     #18201C;
+    --surface-2:   #1F2823;
+    --ink:         #E7EDE8;
+    --ink-soft:    #9DAAA1;
+    --ink-faint:   #7A867E;
+    --rule:        #2B3630;
+    --rule-strong: #3D4A43;
+
+    --bh:          #74C4A2;
+    --bh-wash:     #163026;
+    --rh:          #E68CA0;
+    --rh-wash:     #33191F;
+
+    --risk:        #E9906F;
+    --risk-wash:   #331C14;
+    --watch:       #DCAE5E;
+    --watch-wash:  #2E2411;
+    --fine:        #7FC79F;
+    --fine-wash:   #16261D;
+
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Public Sans", "Helvetica Neue", Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.62;
+    margin: 0;
+    padding: 0 24px 96px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .col {
+    max-width: 720px;
+    margin-inline: auto;
+  }
+  .wide {
+    max-width: 1080px;
+    margin-inline: auto;
+  }
+
+  /* ---------- type ---------- */
+
+  h1, h2, h3, h4 {
+    font-family: Fraunces, Georgia, "Times New Roman", serif;
+    text-wrap: balance;
+    margin: 0;
+    letter-spacing: -0.012em;
+  }
+  h1 { font-size: clamp(2.1rem, 5.6vw, 3.2rem); font-weight: 600; line-height: 1.08; }
+  h2 { font-size: clamp(1.5rem, 3.4vw, 1.95rem); font-weight: 600; line-height: 1.18; }
+  h3 { font-size: 1.16rem; font-weight: 600; line-height: 1.3; }
+  h4 { font-size: 1rem; font-weight: 600; font-family: "Public Sans", sans-serif; }
+
+  p { margin: 0; }
+
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .705rem;
+    font-weight: 500;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .lede { font-size: 1.12rem; color: var(--ink-soft); }
+  .note { font-size: .9rem; color: var(--ink-soft); }
+  .num  { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+  a { color: inherit; text-decoration-color: var(--rule-strong); text-underline-offset: 2px; }
+  a:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--bh); outline-offset: 3px; border-radius: 2px;
+  }
+
+  strong { font-weight: 600; }
+  em { font-style: italic; }
+
+  /* ---------- rhythm ---------- */
+
+  section { display: flow-root; }
+  .stack       { display: flex; flex-direction: column; gap: 18px; }
+  .stack-tight { display: flex; flex-direction: column; gap: 10px; }
+  .band        { padding-block: 54px; border-top: 1px solid var(--rule); }
+  .band:first-of-type { border-top: 0; }
+
+  /* ---------- masthead ---------- */
+
+  header.masthead {
+    padding: 68px 0 46px;
+  }
+  .mast-rule {
+    height: 3px;
+    background: linear-gradient(90deg, var(--bh) 0 50%, var(--rh) 50% 100%);
+    margin-bottom: 26px;
+    border-radius: 2px;
+  }
+  .mast-meta {
+    display: flex; flex-wrap: wrap; gap: 8px 22px;
+    margin-top: 26px; padding-top: 18px;
+    border-top: 1px solid var(--rule);
+  }
+
+  /* ---------- headline cards ---------- */
+
+  .duo {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 18px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 26px 24px;
+    box-shadow: var(--shadow);
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .card.bh { border-top: 3px solid var(--bh); }
+  .card.rh { border-top: 3px solid var(--rh); }
+  .card-name { font-family: Fraunces, Georgia, serif; font-size: 1.34rem; font-weight: 600; line-height: 1.2; }
+  .card.bh .card-name { color: var(--bh); }
+  .card.rh .card-name { color: var(--rh); }
+  .bigfig {
+    font-family: "IBM Plex Mono", monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 2.15rem; font-weight: 500; letter-spacing: -.03em; line-height: 1;
+  }
+  .pp { font-size: .88rem; color: var(--ink-soft); margin-top: 5px; }
+  .spec { display: flex; flex-direction: column; gap: 7px; margin: 0; padding: 0; list-style: none; font-size: .93rem; }
+  .spec li { display: grid; grid-template-columns: 92px 1fr; gap: 12px; align-items: baseline; }
+  .spec .k { font-family: "IBM Plex Mono", monospace; font-size: .69rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); }
+
+  /* ---------- chips ---------- */
+
+  .chip {
+    display: inline-block;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: .655rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+    padding: 3px 7px; border-radius: 2px; white-space: nowrap; vertical-align: 2px;
+  }
+  .chip-risk  { background: var(--risk-wash);  color: var(--risk); }
+  .chip-watch { background: var(--watch-wash); color: var(--watch); }
+  .chip-fine  { background: var(--fine-wash);  color: var(--fine); }
+  .chip-bh    { background: var(--bh-wash);    color: var(--bh); }
+  .chip-rh    { background: var(--rh-wash);    color: var(--rh); }
+
+  /* ---------- tables ---------- */
+
+  .scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table {
+    width: 100%; border-collapse: collapse;
+    font-size: .93rem; min-width: 560px;
+  }
+  caption {
+    text-align: left; font-size: .84rem; color: var(--ink-soft);
+    padding-bottom: 12px;
+  }
+  th, td {
+    text-align: left; padding: 11px 14px 11px 0;
+    border-bottom: 1px solid var(--rule); vertical-align: top;
+  }
+  thead th {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: .68rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--ink-faint); border-bottom: 1px solid var(--rule-strong);
+    padding-bottom: 9px;
+  }
+  td.n, th.n { text-align: right; font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; padding-right: 0; }
+  tbody tr:last-child td { border-bottom: 0; }
+  tr.total td { border-top: 1px solid var(--rule-strong); border-bottom: 0; font-weight: 600; padding-top: 12px; }
+  .c-bh { color: var(--bh); }
+  .c-rh { color: var(--rh); }
+  .win { font-weight: 600; }
+
+  /* ---------- risk register ---------- */
+
+  .reg { display: flex; flex-direction: column; gap: 0; margin: 0; padding: 0; list-style: none; }
+  .reg > li {
+    display: grid;
+    grid-template-columns: 88px 1fr;
+    gap: 6px 18px;
+    padding: 17px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .reg > li:last-child { border-bottom: 0; }
+  .reg .sev { padding-top: 2px; }
+  .reg h3 { margin-bottom: 4px; }
+  .reg p { font-size: .945rem; color: var(--ink-soft); }
+  .reg .ask {
+    font-size: .89rem; margin-top: 8px; padding-left: 13px;
+    border-left: 2px solid var(--rule-strong); color: var(--ink);
+  }
+  .reg .ask b {
+    font-family: "IBM Plex Mono", monospace; font-size: .66rem; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-faint); display: block; margin-bottom: 2px; font-weight: 600;
+  }
+  @media (max-width: 620px) {
+    .reg > li { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- pros / cons ---------- */
+
+  .pc { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+  .pc ul { margin: 0; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 9px; font-size: .93rem; }
+  .pc li { display: grid; grid-template-columns: 16px 1fr; gap: 9px; }
+  .pc li::before { content: ""; }
+  .mark { font-family: "IBM Plex Mono", monospace; font-weight: 600; line-height: 1.5; }
+  .mark.plus  { color: var(--fine); }
+  .mark.minus { color: var(--risk); }
+
+  /* ---------- callout ---------- */
+
+  .callout {
+    background: var(--surface-2);
+    border-left: 3px solid var(--bh);
+    border-radius: 0 3px 3px 0;
+    padding: 20px 22px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .callout.verdict { border-left-color: var(--rh); }
+
+  /* ---------- checklist ---------- */
+
+  .ask-group { display: flex; flex-direction: column; gap: 26px; }
+  .ask-group ul { margin: 0; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: .945rem; }
+  .ask-group li { display: grid; grid-template-columns: 15px 1fr; gap: 11px; align-items: start; }
+  .box {
+    width: 12px; height: 12px; margin-top: 6px;
+    border: 1px solid var(--rule-strong); border-radius: 2px;
+  }
+
+  footer {
+    margin-top: 60px; padding-top: 22px;
+    border-top: 1px solid var(--rule);
+    font-size: .85rem; color: var(--ink-faint);
+    display: flex; flex-wrap: wrap; gap: 6px 20px;
+  }
+</style>
+
+<header class="masthead col">
+  <div class="mast-rule"></div>
+  <p class="eyebrow">Ferrotec Holiday Party &nbsp;·&nbsp; Friday, December 18, 2026 &nbsp;·&nbsp; 200 guests</p>
+  <h1 style="margin-top:14px">Blackhawk Museum vs.<br>The Club at Ruby Hill</h1>
+  <p class="lede" style="margin-top:18px">
+    Two proposals for the same night, $16,018 apart. The gap is real — but it is not
+    where the headline numbers put it, and neither quote is priced for the party as
+    the client will actually run it.
+  </p>
+  <div class="mast-meta">
+    <span class="eyebrow">Prepared by CTC Conferences</span>
+    <span class="eyebrow">Contact: Maia Nantais</span>
+    <span class="eyebrow">Reviewed 20 Aug 2026</span>
+  </div>
+</header>
+
+<section class="band col stack">
+  <div class="duo">
+    <article class="card bh">
+      <div>
+        <p class="eyebrow">Proposal 443-1 &nbsp;·&nbsp; West Coast Events Group</p>
+        <p class="card-name" style="margin-top:6px">Blackhawk Museum</p>
+        <p class="note">Danville, CA</p>
+      </div>
+      <div>
+        <p class="bigfig c-bh">$60,038</p>
+        <p class="pp"><span class="num">$300.19</span> per guest &nbsp;·&nbsp; all-in as quoted</p>
+      </div>
+      <ul class="spec">
+        <li><span class="k">Hours</span><span>6:00–10:00pm &nbsp;(4)</span></li>
+        <li><span class="k">Spaces</span><span>Cultural Plaza, Into China, Lower Lobby</span></li>
+        <li><span class="k">Bar</span><span>Beer &amp; wine, 4 hrs &nbsp;·&nbsp; champagne greet included</span></li>
+        <li><span class="k">Dinner</span><span>Plated, <strong>4 entrée choices</strong> (90/50/50/10)</span></li>
+        <li><span class="k">Loading</span><span>Service charge <strong>35%</strong> · tax 8.75%</span></li>
+      </ul>
+    </article>
+
+    <article class="card rh">
+      <div>
+        <p class="eyebrow">Deal 63835076751 &nbsp;·&nbsp; Arcis Golf</p>
+        <p class="card-name" style="margin-top:6px">The Club at Ruby Hill</p>
+        <p class="note">Pleasanton, CA</p>
+      </div>
+      <div>
+        <p class="bigfig c-rh">$44,021</p>
+        <p class="pp"><span class="num">$220.10</span> per guest &nbsp;·&nbsp; all-in as quoted</p>
+      </div>
+      <ul class="spec">
+        <li><span class="k">Hours</span><span>6:00–11:00pm &nbsp;(5)</span></li>
+        <li><span class="k">Spaces</span><span>Ballroom, patio, parlor, lobby/upstairs</span></li>
+        <li><span class="k">Bar</span><span>Sapphire full bar, <strong>3 hrs only</strong></span></li>
+        <li><span class="k">Dinner</span><span>Plated, <strong>one entrée for all 200</strong></span></li>
+        <li><span class="k">Loading</span><span>Service charge <strong>24%</strong> · tax 10.25%</span></li>
+      </ul>
+    </article>
+  </div>
+
+  <div class="callout">
+    <p><strong>Read this first.</strong> The two quotes are not describing the same party.
+    Blackhawk is four hours with beer and wine and a choice of entrée. Ruby Hill is five
+    hours with premium spirits for three of them and the same plate for everyone. Any
+    comparison that stops at $60,038 vs $44,021 is comparing different events.</p>
+  </div>
+</section>
+
+<section class="band wide stack">
+  <div class="col stack-tight" style="margin-inline:0;max-width:720px">
+    <p class="eyebrow">The math underneath</p>
+    <h2>Every dollar costs 7.4% more at Blackhawk before you compare a single menu price</h2>
+    <p class="note">
+      Service charge and sales tax compound, and both venues tax the service charge — standard
+      in California for a mandatory charge. Blackhawk's 35% service charge is the single largest
+      driver of the price gap, and it is well above the 20–25% norm for this market.
+    </p>
+  </div>
+
+  <div class="scroll">
+    <table>
+      <caption>Loading factor applied to food, beverage and services</caption>
+      <thead>
+        <tr>
+          <th>Component</th>
+          <th class="n">Blackhawk</th>
+          <th class="n">Ruby Hill</th>
+          <th>Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Service charge</td>
+          <td class="n c-bh">35%</td>
+          <td class="n c-rh win">24%</td>
+          <td>Neither quote states whether any portion is gratuity to staff</td>
+        </tr>
+        <tr>
+          <td>Sales tax</td>
+          <td class="n c-bh win">8.75%</td>
+          <td class="n c-rh">10.25%</td>
+          <td>Contra Costa vs. Alameda County rate</td>
+        </tr>
+        <tr>
+          <td>Tax applied to service charge</td>
+          <td class="n c-bh">Yes</td>
+          <td class="n c-rh">Yes</td>
+          <td>Verified against both quote totals</td>
+        </tr>
+        <tr class="total">
+          <td>Effective multiplier on spend</td>
+          <td class="n c-bh">1.468×</td>
+          <td class="n c-rh win">1.367×</td>
+          <td>Blackhawk is 7.4% more expensive per dollar spent</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="scroll" style="margin-top:14px">
+    <table>
+      <caption>Where the money actually goes — all figures loaded with service charge and tax</caption>
+      <thead>
+        <tr>
+          <th>Line</th>
+          <th class="n">Blackhawk</th>
+          <th class="n">Ruby Hill</th>
+          <th>What the difference buys</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Room rental</td>
+          <td class="n c-bh">$7,500</td>
+          <td class="n c-rh win">$6,836</td>
+          <td>Headline gap is $2,500 — but Blackhawk's rental carries no service charge or tax, so the real gap is <span class="num">$665</span></td>
+        </tr>
+        <tr>
+          <td>Reception food</td>
+          <td class="n c-bh win">$5,661<br><span class="note num">$28.31 pp</span></td>
+          <td class="n c-rh">$6,562<br><span class="note num">$32.81 pp</span></td>
+          <td>Blackhawk is cheaper per bite but under-ordered (see risks)</td>
+        </tr>
+        <tr>
+          <td>Dinner + dessert</td>
+          <td class="n c-bh">$24,562<br><span class="note num">$122.81 pp</span></td>
+          <td class="n c-rh win">$19,139<br><span class="note num">$95.70 pp</span></td>
+          <td>Guest choice of entrée at Blackhawk effectively costs <span class="num">$5,422</span> more than Ruby Hill's single plate</td>
+        </tr>
+        <tr>
+          <td>Bar</td>
+          <td class="n c-bh">$19,086<br><span class="note">beer &amp; wine, 4 hrs</span></td>
+          <td class="n c-rh">$11,483<br><span class="note">full bar, 3 hrs</span></td>
+          <td>Not comparable as written — Ruby Hill's bar closes two hours before the party does</td>
+        </tr>
+        <tr>
+          <td>Linens, napkins, bar setup</td>
+          <td class="n c-bh">$2,055</td>
+          <td class="n c-rh win">Included</td>
+          <td>Ruby Hill bundles linens, china, silverware and dancefloor into the rental</td>
+        </tr>
+        <tr>
+          <td>Security</td>
+          <td class="n c-bh">$1,175</td>
+          <td class="n c-rh">Not quoted</td>
+          <td>Blackhawk billed the 250–350 guest tier for a 200-guest event</td>
+        </tr>
+        <tr class="total">
+          <td>As quoted</td>
+          <td class="n c-bh">$60,038</td>
+          <td class="n c-rh win">$44,021</td>
+          <td><span class="num">$16,018</span> apart</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="band wide stack">
+  <div class="stack-tight" style="max-width:720px">
+    <p class="eyebrow">Like-for-like</p>
+    <h2>Normalize the bar and the gap narrows — but never closes</h2>
+    <p class="note">
+      The fairest comparison holds the bar constant across the full length of each event.
+      Ruby Hill stays cheaper in every scenario, including one where all 200 guests eat
+      filet mignon and drink premium spirits for five hours.
+    </p>
+  </div>
+
+  <div class="scroll">
+    <table>
+      <caption>Modeled scenarios, all-in. Blackhawk's event is 4 hours; Ruby Hill's is 5.</caption>
+      <thead>
+        <tr>
+          <th>Scenario</th>
+          <th class="n">Blackhawk</th>
+          <th class="n">Ruby Hill</th>
+          <th class="n">Gap</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>As quoted</strong><br><span class="note">Different bars, different lengths</span></td>
+          <td class="n c-bh">$60,038</td>
+          <td class="n c-rh">$44,021</td>
+          <td class="n">$16,018</td>
+        </tr>
+        <tr>
+          <td><strong>Beer &amp; wine, full event length</strong><br><span class="note">Ruby Hill at $34pp for 5 hrs</span></td>
+          <td class="n c-bh">$60,038</td>
+          <td class="n c-rh win">$41,833</td>
+          <td class="n">$18,205</td>
+        </tr>
+        <tr>
+          <td><strong>Full bar, full event length</strong><br><span class="note">Blackhawk's full-bar option covers only 3 of 4 hrs</span></td>
+          <td class="n c-bh">$61,506</td>
+          <td class="n c-rh win">$51,676</td>
+          <td class="n">$9,830</td>
+        </tr>
+        <tr>
+          <td><strong>Ruby Hill's best case vs Blackhawk's</strong><br><span class="note">RH: filet for all + 5 hrs premium bar. BH: full bar + reception food corrected to industry standard</span></td>
+          <td class="n c-bh">$64,002</td>
+          <td class="n c-rh win">$55,094</td>
+          <td class="n">$8,908</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout" style="max-width:720px">
+    <p><strong>Neither number includes A/V.</strong> Blackhawk explicitly excludes it —
+    "OAVS, Client to contract directly," meaning a single-source vendor you cannot bid out.
+    Ruby Hill does not mention A/V at all. For a 200-person party with a mic, a screen and
+    music, budget <span class="num">$2,000–$6,000</span> on top of whichever venue you pick,
+    and expect Blackhawk's to land at the higher end.</p>
+  </div>
+</section>
+
+<section class="band col stack">
+  <div class="stack-tight">
+    <p class="eyebrow"><span class="chip chip-bh">Blackhawk</span></p>
+    <h2 style="margin-top:8px">What's non-standard, and what could bite</h2>
+  </div>
+
+  <ul class="reg">
+    <li>
+      <div class="sev"><span class="chip chip-risk">Blocker</span></div>
+      <div>
+        <h3>There is no dance floor anywhere in this quote</h3>
+        <p>Dinner is in the Lower Lobby with 20 linens — 20 rounds of ten. No dancefloor line item,
+        no staging, no risers. For a holiday party this is the most consequential omission in the
+        document, and it may be a room-capacity problem rather than a pricing one.</p>
+        <p class="ask"><b>Ask</b>Does the Lower Lobby hold 20 rounds of 10 <em>plus</em> a dance floor, band or DJ setup, and a bar? What does the floor plan actually show? Is there a dancefloor charge?</p>
+      </div>
+    </li>
+    <li>
+      <div class="sev"><span class="chip chip-risk">High</span></div>
+      <div>
+        <h3>35% service charge</h3>
+        <p>Eleven points above Ruby Hill and above the market norm. On $43,286 of charges that is
+        $12,525 — more than the entire dinner at Ruby Hill costs. California requires disclosure of
+        whether a mandatory service charge is distributed to staff; this quote is silent.</p>
+        <p class="ask"><b>Ask</b>Is any portion gratuity? Is the rate negotiable, or can a portion be reclassified? Is a further gratuity expected on top?</p>
+      </div>
+    </li>
+    <li>
+      <div class="sev"><span class="chip chip-risk">High</span></div>
+      <div>
+        <h3>The reception food is under-ordered by roughly half</h3>
+        <p>700 passed pieces across 200 guests is <span class="num">3.5</span> per person for a full hour
+        before dinner — the working standard is 4–6. Worse, the cheese platters are priced
+        "per 50 people" and only two are on the order: <strong>coverage for 100 of 200 guests.</strong>
+        Correcting both adds about <span class="num">$2,500</span> all-in.</p>
+        <p class="ask"><b>Ask</b>Confirm the cheese platter count is an error. Add a fourth passed item. Reprice.</p>
+      </div>
+    </li>
+    <li>
+      <div class="sev"><span class="chip chip-watch">Flag</span></div>
+      <div>
+        <h3>Security billed at the wrong guest tier</h3>
+        <p>The line reads "Security Fee (250 to 350 Guests) (1 hour) — $800." The event is 200 guests.
+        Two separate questions: why the higher tier, and if $800 buys one hour, what covers the
+        other three?</p>
+        <p class="ask"><b>Ask</b>Is there a 150–250 tier? Is $800 hourly or flat for the event?</p>
+      </div>
+    </li>
+    <li>
+      <div class="sev"><span class="chip chip-watch">Flag</span></div>
+      <div>
+        <h3>Full bar is offered at $70pp — but only for three hours</h3>
+        <p>The beer-and-wine package runs four hours and covers the whole event. The full-bar line is
+        quoted at three. Upgrading costs roughly <span class="num">$1,468</span> all-in and loses an
+        hour of service, which is a strange trade to put in front of a client.</p>
+        <p class="ask"><b>Ask</b>Price a four-hour full bar. Confirm whether wine is poured at dinner tables under the package.</p>
+      </div>
+    </li>
+    <li>
+      <div class="sev"><span class="chip chip-watch">Flag</span></div>
+      <div>
+        <h3>Linen count doesn't cover the event</h3>
+        <p>20 table linens at $20 each covers the dining rounds and nothing else — no cocktail tables,
+        no bars, no buffet or station linens, no gift or registration table. Napkins are correct at 200.</p>
+        <p class="ask"><b>Ask</b>Total linen count including all cocktail, bar and station tables.</p>
+      </div>
+    </li>
+    <li>
+      <div class="sev"><span class="chip chip-watch">Flag</span></div>
+      <div>
+        <h3>No open flame, and no overnight storage</h3>
+        <p>Battery candles only without a permit — a real constraint on holiday décor. And everything
+        must be in and out the same day, which means load-in on Friday afternoon and full teardown
+        Friday night. That is labor cost and it caps how elaborate the décor can be.</p>
+        <p class="ask"><b>Ask</b>What time can vendors access the space? Is there any secured hold area for gifts, raffle prizes or A/V cases?</p>
+      </div>
+    </li>
+    <li>
+      <div class="sev"><span class="chip chip-watch">Flag</span></div>
+      <div>
+        <h3>You are contracting with two entities</h3>
+        <p>The document carries the museum's address but the terms, pricing and signature line are
+        West Coast Events Group's. A COI is separately required for the plaza, dining room car
+        entrance and staging.</p>
+        <p class="ask"><b>Ask</b>Who is the counterparty on the contract? Who holds the liquor licence? Whose insurance limits apply, and is the museum a required additional insured?</p>
+      </div>
+    </li>
+    <li>
+      <div class="sev"><span class="chip chip-watch">Watch</span></div>
+      <div>
+        <h3>Rental is attached only to the cocktail hour line</h3>
+        <p>The $7,500 sits on the 6:00–7:00pm reception row; the 7:00–10:00pm party row shows no rental
+        at all. Almost certainly a formatting artifact — but get it confirmed in writing that $7,500
+        covers all three spaces for the full four hours.</p>
+      </div>
+    </li>
+    <li>
+      <div class="sev"><span class="chip chip-watch">Watch</span></div>
+      <div>
+        <h3>Empty placeholder lines</h3>
+        <p>Music, Florals and Outside Deliveries appear as headings with no content and no pricing.
+        Either they are unaddressed or there are rules attached that haven't been stated.
+        The venue contact phone field is also blank.</p>
+      </div>
+    </li>
+    <li>
+      <div class="sev"><span class="chip chip-watch">Watch</span></div>
+      <div>
+        <h3>Parking is a shared retail plaza in December</h3>
+        <p>Blackhawk Plaza is a shopping centre. A Friday night the week before Christmas is its
+        busiest of the year, and 200 guests arriving at 6pm will compete with holiday shoppers.</p>
+        <p class="ask"><b>Ask</b>Are spaces reserved or valet available? What is the walk from lot to entrance?</p>
+      </div>
+    </li>
+    <li>
+      <div class="sev"><span class="chip chip-fine">Credit</span></div>
+      <div>
+        <h3>What Blackhawk does better</h3>
+        <p>Salad, bread, coffee, tea and printed menu cards are all included at no charge. The
+        champagne greet for 200 is complimentary — call it $1,500–$2,000 of value. Three bar setups
+        for the price of two is a genuinely good ratio at one bar per 67 guests. Entrée counts
+        (90/50/50/10) tie out exactly to 200, and the vegetarian tower is vegan-adaptable.</p>
+      </div>
+    </li>
+  </ul>
+</section>
+
+<section class="band col stack">
+  <div class="stack-tight">
+    <p class="eyebrow"><span class="chip chip-rh">Ruby Hill</span></p>
+    <h2 style="margin-top:8px">What's non-standard, and what could bite</h2>
+  </div>
+
+  <ul class="reg">
+    <li>
+      <div class="sev"><span class="chip chip-risk">Blocker</span></div>
+      <div>
+        <h3>The bar closes at 9pm on a party that runs to 11</h3>
+        <p>Five-hour event, three-hour bar. Guests would be dry for the last two hours — precisely the
+        dancing hours. Extending Sapphire to five hours is $14pp/hr, adding
+        <span class="num">$5,600</span> before loading, or <span class="num">$7,655</span> all-in.
+        This is the number that makes Ruby Hill's quote look cheaper than it is.</p>
+        <p class="ask"><b>Ask</b>Reprice with the bar covering the full event. Confirm whether the bar clock starts at 6:00 or at the end of the reception.</p>
+      </div>
+    </li>
+    <li>
+      <div class="sev"><span class="chip chip-risk">High</span></div>
+      <div>
+        <h3>One entrée for all 200 guests</h3>
+        <p>The quote reads "SINGLE ENTREE." Every guest eats the same plate. Corporate holiday parties
+        almost always offer a choice, and a room with 200 Ferrotec employees will contain vegetarians,
+        pescatarians and allergy plates regardless of what's chosen.</p>
+        <p class="ask"><b>Ask</b>Can we run a duet plate, or a two-choice menu with advance counts? At what surcharge? How are dietary and allergy plates handled, and are they charged?</p>
+      </div>
+    </li>
+    <li>
+      <div class="sev"><span class="chip chip-risk">High</span></div>
+      <div>
+        <h3>The quote expires August 29</h3>
+        <p>Nine days from today. Everything below needs answering inside that window, or the pricing
+        has to be re-cut — on a peak December Friday, likely upward.</p>
+        <p class="ask"><b>Ask</b>Extend the quote validity while questions are outstanding, and place a courtesy hold on the date.</p>
+      </div>
+    </li>
+    <li>
+      <div class="sev"><span class="chip chip-risk">High</span></div>
+      <div>
+        <h3>Too much is simply absent from the quote</h3>
+        <p>No A/V. No security. No bartender or chef attendant fees. No coat check on a December night.
+        No parking or valet. No cake-cutting or outside-vendor fees. Blackhawk at least disclosed its
+        exclusions — Ruby Hill's silence is the bigger risk, because $44,021 is the number the client
+        will anchor to.</p>
+        <p class="ask"><b>Ask</b>Does the 24% service charge cover all staffing, or are there per-bartender and per-attendant charges? Get every omitted category priced or confirmed as zero, in writing.</p>
+      </div>
+    </li>
+    <li>
+      <div class="sev"><span class="chip chip-watch">Flag</span></div>
+      <div>
+        <h3>"Minimum Expenditure: $0.00" on a peak December Friday</h3>
+        <p>Clubs almost always impose an F&amp;B minimum on the best dates of the year. A zero
+        minimum is either a genuine advantage or a field nobody filled in.</p>
+        <p class="ask"><b>Ask</b>Confirm in writing that there is no food and beverage minimum for 18 December.</p>
+      </div>
+    </li>
+    <li>
+      <div class="sev"><span class="chip chip-watch">Flag</span></div>
+      <div>
+        <h3>Cocktail hour is on an outdoor patio — in December</h3>
+        <p>The rental includes an "Outdoor / Cocktail Hour Patio." At 6:00pm on 18 December that is
+        cold and dark. Heaters are not mentioned, and no weather backup is stated.</p>
+        <p class="ask"><b>Ask</b>Are patio heaters included, rentable, or prohibited? What is the indoor rain and cold plan, and is it in the contract or discretionary?</p>
+      </div>
+    </li>
+    <li>
+      <div class="sev"><span class="chip chip-watch">Flag</span></div>
+      <div>
+        <h3>Two hours of setup access is tight</h3>
+        <p>Two hours before, one hour after. For 200 guests with décor, A/V and a band load-in, two
+        hours is workable only if everything arrives on time and nothing goes wrong. Extra event
+        hours are $1,500 — setup hours are unpriced.</p>
+        <p class="ask"><b>Ask</b>Cost of earlier access. Whether setup time is charged at the same $1,500 rate.</p>
+      </div>
+    </li>
+    <li>
+      <div class="sev"><span class="chip chip-watch">Watch</span></div>
+      <div>
+        <h3>Private gated residential community</h3>
+        <p>Ruby Hill is a gated golf community. Guest access, the gate list procedure, any noise
+        ordinance affecting an 11pm finish, and whether a club dress code applies all need
+        confirming before invitations go out.</p>
+      </div>
+    </li>
+    <li>
+      <div class="sev"><span class="chip chip-watch">Watch</span></div>
+      <div>
+        <h3>Hors d'oeuvre quantity is undefined</h3>
+        <p>"$24 Per Person (Choice of 3)" — three <em>varieties</em>, but how many pieces per guest?
+        The list is generous and genuinely appealing, but $24pp is above Blackhawk's equivalent and
+        the deliverable isn't specified.</p>
+        <p class="ask"><b>Ask</b>Pieces per person. Whether "passed or displayed" changes the count.</p>
+      </div>
+    </li>
+    <li>
+      <div class="sev"><span class="chip chip-watch">Watch</span></div>
+      <div>
+        <h3>This is a proposal, not an event order</h3>
+        <p>Blackhawk's document is a signable event order with a client signature line. Ruby Hill's is
+        a HubSpot-generated quote. Deposit schedule, cancellation ladder, attrition, force majeure and
+        final guarantee deadline are all still unseen.</p>
+      </div>
+    </li>
+    <li>
+      <div class="sev"><span class="chip chip-fine">Credit</span></div>
+      <div>
+        <h3>What Ruby Hill does better</h3>
+        <p>Tables, chairs, linens, silverware, china and a dance floor are all in the $5,000 rental —
+        that alone is $2,055 of Blackhawk's bill plus an unpriced dancefloor. Dinner at $70pp includes
+        salad, starch, vegetable, dessert, Starbucks coffee and iced tea. Four rooms are included, not
+        one. The event runs an hour longer. And a private club has its own parking, which the
+        Blackhawk plaza does not.</p>
+      </div>
+    </li>
+  </ul>
+</section>
+
+<section class="band wide stack">
+  <div class="stack-tight" style="max-width:720px">
+    <p class="eyebrow">Side by side</p>
+    <h2>Pros and cons</h2>
+  </div>
+
+  <div class="pc">
+    <article class="card bh">
+      <p class="card-name">Blackhawk Museum</p>
+      <div class="stack-tight">
+        <p class="eyebrow" style="color:var(--fine)">For</p>
+        <ul>
+          <li><span class="mark plus">+</span><span>A genuinely memorable setting — guests dine among the collections, with the Into China gallery and Cultural Plaza in play. No other option here competes on atmosphere.</span></li>
+          <li><span class="mark plus">+</span><span>Four entrée choices including filet, salmon, chicken and a vegan-adaptable vegetarian plate.</span></li>
+          <li><span class="mark plus">+</span><span>Complimentary champagne greet for all 200.</span></li>
+          <li><span class="mark plus">+</span><span>Lower sales tax, and the room rental carries no service charge or tax at all.</span></li>
+          <li><span class="mark plus">+</span><span>Three bars, printed menus, salad, bread and coffee all included.</span></li>
+          <li><span class="mark plus">+</span><span>A signable event order — the commercial terms are further along.</span></li>
+        </ul>
+      </div>
+      <div class="stack-tight">
+        <p class="eyebrow" style="color:var(--risk)">Against</p>
+        <ul>
+          <li><span class="mark minus">−</span><span>$16,018 more as quoted; realistically $9,000–18,000 more once both are normalized.</span></li>
+          <li><span class="mark minus">−</span><span>35% service charge, well above market.</span></li>
+          <li><span class="mark minus">−</span><span>No dance floor in the quote, and an open question about whether the room fits one.</span></li>
+          <li><span class="mark minus">−</span><span>Shortest event — ends at 10pm.</span></li>
+          <li><span class="mark minus">−</span><span>Beer and wine only unless you upgrade and lose an hour.</span></li>
+          <li><span class="mark minus">−</span><span>A/V locked to a single vendor you cannot competitively bid.</span></li>
+          <li><span class="mark minus">−</span><span>No open flame, no overnight storage, shared retail parking in peak shopping season.</span></li>
+          <li><span class="mark minus">−</span><span>Reception food and linen counts both come up short as written.</span></li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="card rh">
+      <p class="card-name">The Club at Ruby Hill</p>
+      <div class="stack-tight">
+        <p class="eyebrow" style="color:var(--fine)">For</p>
+        <ul>
+          <li><span class="mark plus">+</span><span>Materially cheaper in every modeled scenario, including filet for all 200 with a five-hour premium bar.</span></li>
+          <li><span class="mark plus">+</span><span>Five hours, an hour longer than Blackhawk, with extensions priced up front at $1,500.</span></li>
+          <li><span class="mark plus">+</span><span>Dance floor, linens, china and silverware included in the rental.</span></li>
+          <li><span class="mark plus">+</span><span>Four spaces — ballroom, patio, parlor, lobby — giving the evening natural movement.</span></li>
+          <li><span class="mark plus">+</span><span>Premium spirits in the base quote, and a transparent bar ladder from $30 to $50pp.</span></li>
+          <li><span class="mark plus">+</span><span>Dinner price includes dessert and coffee; a wide, well-composed menu.</span></li>
+          <li><span class="mark plus">+</span><span>Private club parking, and closer to the Tri-Valley if that's where attendees are coming from.</span></li>
+        </ul>
+      </div>
+      <div class="stack-tight">
+        <p class="eyebrow" style="color:var(--risk)">Against</p>
+        <ul>
+          <li><span class="mark minus">−</span><span>One entrée for all 200 unless a choice can be negotiated.</span></li>
+          <li><span class="mark minus">−</span><span>Bar covers only three of five hours as quoted — a real $7,655 to fix.</span></li>
+          <li><span class="mark minus">−</span><span>A ballroom is a ballroom. Handsome, but conventional next to a museum.</span></li>
+          <li><span class="mark minus">−</span><span>Higher sales tax, and the room rental is both service-charged and taxed.</span></li>
+          <li><span class="mark minus">−</span><span>Several standard cost categories simply missing from the quote.</span></li>
+          <li><span class="mark minus">−</span><span>Quote expires 29 August.</span></li>
+          <li><span class="mark minus">−</span><span>December patio cocktail hour with no stated heat or weather plan.</span></li>
+          <li><span class="mark minus">−</span><span>No contract terms visible yet.</span></li>
+        </ul>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="band col stack">
+  <div class="stack-tight">
+    <p class="eyebrow">Recommendation</p>
+    <h2>Ruby Hill on the numbers. Blackhawk only if Ferrotec is explicitly buying the room.</h2>
+  </div>
+
+  <p>Ruby Hill delivers more party for less money: an extra hour, premium spirits, a dance floor,
+  linens and china in the rental, and a dinner that costs $27 less per head while including more
+  on the plate. Even after fixing the bar — the one genuine flaw in its pricing — it lands around
+  <span class="num">$51,676</span>, roughly $10,000 under a comparably equipped Blackhawk.</p>
+
+  <p>Blackhawk's case is not financial and shouldn't be argued as though it were. It is that guests
+  spend the evening inside a museum instead of a ballroom, and that they get to choose their
+  entrée. Those are real things to buy. But at roughly $9,000–18,000 more, with a 35% service
+  charge, a hard 10pm finish, single-source A/V and no dance floor in the document, the client
+  should be choosing it with open eyes rather than discovering the trade-offs later.</p>
+
+  <div class="callout verdict">
+    <p><strong>Before either goes to Ferrotec,</strong> both quotes need re-cutting. Blackhawk's
+    reception food and linen counts are short and its security tier is wrong; Ruby Hill's bar
+    doesn't cover its own event and half a dozen standard cost lines are missing. Presenting
+    $60,038 against $44,021 as though they were finished numbers would set an expectation neither
+    venue will hold to.</p>
+  </div>
+</section>
+
+<section class="band col stack">
+  <div class="stack-tight">
+    <p class="eyebrow">Action list</p>
+    <h2>Send before anything gets signed</h2>
+    <p class="note">Ruby Hill's quote expires 29 August, so those questions go out first.</p>
+  </div>
+
+  <div class="ask-group">
+    <div class="stack-tight">
+      <h4>To Eve Noble &mdash; Ruby Hill &nbsp;<span class="chip chip-rh">by 29 Aug</span></h4>
+      <ul>
+        <li><span class="box"></span><span>Reprice with the bar covering the full five hours — Sapphire and beer/wine both.</span></li>
+        <li><span class="box"></span><span>Can we offer two entrées with advance counts, or a duet plate? At what surcharge?</span></li>
+        <li><span class="box"></span><span>Confirm in writing there is no F&amp;B minimum for 18 December.</span></li>
+        <li><span class="box"></span><span>Price A/V, security, bartender and attendant fees, coat check, valet — or confirm each is zero.</span></li>
+        <li><span class="box"></span><span>Does the 24% service charge include all staffing and gratuity?</span></li>
+        <li><span class="box"></span><span>Patio heaters — included, rentable, or not available? What is the contractual cold-weather backup?</span></li>
+        <li><span class="box"></span><span>Pieces per person on the $24 hors d'oeuvre package.</span></li>
+        <li><span class="box"></span><span>Cost of setup access earlier than two hours prior.</span></li>
+        <li><span class="box"></span><span>Send the full contract: deposit schedule, cancellation, attrition, force majeure, guarantee deadline.</span></li>
+        <li><span class="box"></span><span>Extend quote validity and place a courtesy hold on the date.</span></li>
+      </ul>
+    </div>
+
+    <div class="stack-tight">
+      <h4>To Gina &mdash; West Coast Events Group / Blackhawk &nbsp;<span class="chip chip-bh">this week</span></h4>
+      <ul>
+        <li><span class="box"></span><span>Send the Lower Lobby floor plan. Does it hold 20 rounds of 10 plus a dance floor and staging?</span></li>
+        <li><span class="box"></span><span>Price the dance floor, or confirm it's included.</span></li>
+        <li><span class="box"></span><span>The cheese platters cover 100 of 200 guests — is that an error? Reprice at 4.</span></li>
+        <li><span class="box"></span><span>Add a fourth passed appetizer to reach 5 pieces per guest.</span></li>
+        <li><span class="box"></span><span>Security is billed at the 250–350 tier for a 200-guest event. Is there a lower tier? Is $800 hourly or flat?</span></li>
+        <li><span class="box"></span><span>Price a four-hour full bar. Is wine poured at dinner tables under the package?</span></li>
+        <li><span class="box"></span><span>Full linen count including cocktail, bar and station tables.</span></li>
+        <li><span class="box"></span><span>Is the 35% service charge negotiable, and is any portion gratuity to staff?</span></li>
+        <li><span class="box"></span><span>Confirm $7,500 covers all three spaces for the full 6–10pm, not just the reception hour.</span></li>
+        <li><span class="box"></span><span>Who is the contracting party, who holds the liquor licence, and what are the COI limits and additional insureds?</span></li>
+        <li><span class="box"></span><span>Get an OAVS quote now — it is unavoidable and it is not in the $60,038.</span></li>
+        <li><span class="box"></span><span>Parking: reserved spaces or valet, given Blackhawk Plaza in December?</span></li>
+        <li><span class="box"></span><span>Vendor load-in times, and any rules behind the blank Music / Florals / Outside Deliveries lines.</span></li>
+        <li><span class="box"></span><span>Is the 10pm end firm? What does an extension cost, if it's available at all?</span></li>
+      </ul>
+    </div>
+
+    <div class="stack-tight">
+      <h4>Both venues</h4>
+      <ul>
+        <li><span class="box"></span><span>Final guarantee deadline, and whether you pay on guarantee or actual, whichever is higher.</span></li>
+        <li><span class="box"></span><span>Deposit schedule and cancellation ladder.</span></li>
+        <li><span class="box"></span><span>Dietary and allergy plate policy, and whether they carry a charge.</span></li>
+        <li><span class="box"></span><span>Outside vendor rules — DJ or band, photographer, décor.</span></li>
+        <li><span class="box"></span><span>Coat check for a December evening.</span></li>
+        <li><span class="box"></span><span>Rideshare and shuttle staging, given a hosted bar.</span></li>
+        <li><span class="box"></span><span>ADA access across all spaces in use.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer class="col">
+  <span>Figures derived from the Blackhawk event order #443-1 (printed 18 Aug 2026) and the Ruby Hill quote 63835076751.</span>
+  <span>Both quotes' totals verified line by line. Normalized scenarios are CTC modeling, not venue-quoted pricing.</span>
+</footer>

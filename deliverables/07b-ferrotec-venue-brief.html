@@ -1,0 +1,399 @@
+<title>Ferrotec Venue Decision Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=IBM+Plex+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --ground:      #F5F7F3;
+    --surface:     #FFFFFF;
+    --surface-2:   #EDF0EA;
+    --ink:         #15201B;
+    --ink-soft:    #566259;
+    --ink-faint:   #808C84;
+    --rule:        #D9E0D7;
+    --rule-strong: #B9C4B7;
+
+    --bh:          #1E5240;
+    --bh-wash:     #E4EFE8;
+    --rh:          #7A2E3D;
+    --rh-wash:     #F5E6E8;
+
+    --risk:        #B4442C;
+    --risk-wash:   #FBE7E0;
+    --watch:       #8A5A12;
+    --watch-wash:  #F8EEDA;
+
+    --shadow: 0 1px 2px rgba(21,32,27,.05), 0 8px 24px -12px rgba(21,32,27,.16);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:      #101613;
+      --surface:     #18201C;
+      --surface-2:   #1F2823;
+      --ink:         #E7EDE8;
+      --ink-soft:    #9DAAA1;
+      --ink-faint:   #7A867E;
+      --rule:        #2B3630;
+      --rule-strong: #3D4A43;
+
+      --bh:          #74C4A2;
+      --bh-wash:     #163026;
+      --rh:          #E68CA0;
+      --rh-wash:     #33191F;
+
+      --risk:        #E9906F;
+      --risk-wash:   #331C14;
+      --watch:       #DCAE5E;
+      --watch-wash:  #2E2411;
+
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:      #101613;
+    --surface:     #18201C;
+    --surface-2:   #1F2823;
+    --ink:         #E7EDE8;
+    --ink-soft:    #9DAAA1;
+    --ink-faint:   #7A867E;
+    --rule:        #2B3630;
+    --rule-strong: #3D4A43;
+
+    --bh:          #74C4A2;
+    --bh-wash:     #163026;
+    --rh:          #E68CA0;
+    --rh-wash:     #33191F;
+
+    --risk:        #E9906F;
+    --risk-wash:   #331C14;
+    --watch:       #DCAE5E;
+    --watch-wash:  #2E2411;
+
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Public Sans", "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.58;
+    margin: 0;
+    padding: 0 22px 72px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .col { max-width: 700px; margin-inline: auto; }
+
+  h1, h2, h3 {
+    font-family: Fraunces, Georgia, "Times New Roman", serif;
+    text-wrap: balance; margin: 0; letter-spacing: -0.012em;
+  }
+  h1 { font-size: clamp(1.9rem, 5vw, 2.6rem); font-weight: 600; line-height: 1.1; }
+  h2 { font-size: 1.32rem; font-weight: 600; line-height: 1.25; }
+  h3 { font-size: 1.02rem; font-weight: 600; line-height: 1.3; font-family: "Public Sans", sans-serif; }
+  p  { margin: 0; }
+
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .69rem; font-weight: 500; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--ink-faint);
+  }
+  .note { font-size: .89rem; color: var(--ink-soft); }
+  .num  { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+  strong { font-weight: 600; }
+  em { font-style: italic; }
+
+  .stack       { display: flex; flex-direction: column; gap: 16px; }
+  .stack-tight { display: flex; flex-direction: column; gap: 9px; }
+  .band { padding-block: 40px; border-top: 1px solid var(--rule); }
+
+  /* masthead */
+  header.masthead { padding: 56px 0 34px; }
+  .mast-rule {
+    height: 3px; border-radius: 2px; margin-bottom: 22px;
+    background: linear-gradient(90deg, var(--bh) 0 50%, var(--rh) 50% 100%);
+  }
+
+  /* verdict */
+  .verdict {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--rh);
+    border-radius: 0 3px 3px 0;
+    padding: 22px 24px;
+    box-shadow: var(--shadow);
+    display: flex; flex-direction: column; gap: 11px;
+  }
+  .verdict h2 { font-size: 1.42rem; }
+
+  /* cards */
+  .duo { display: grid; grid-template-columns: repeat(auto-fit, minmax(275px, 1fr)); gap: 16px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 3px;
+    padding: 22px 21px; box-shadow: var(--shadow);
+    display: flex; flex-direction: column; gap: 13px;
+  }
+  .card.bh { border-top: 3px solid var(--bh); }
+  .card.rh { border-top: 3px solid var(--rh); }
+  .card-name { font-family: Fraunces, Georgia, serif; font-size: 1.22rem; font-weight: 600; line-height: 1.2; }
+  .card.bh .card-name { color: var(--bh); }
+  .card.rh .card-name { color: var(--rh); }
+  .bigfig {
+    font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums;
+    font-size: 1.95rem; font-weight: 500; letter-spacing: -.03em; line-height: 1;
+  }
+  .c-bh { color: var(--bh); } .c-rh { color: var(--rh); }
+  .sub { font-size: .84rem; color: var(--ink-soft); margin-top: 5px; }
+  .facts { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: .9rem; }
+  .facts li { display: grid; grid-template-columns: 74px 1fr; gap: 11px; align-items: baseline; }
+  .facts .k {
+    font-family: "IBM Plex Mono", monospace; font-size: .66rem; letter-spacing: .09em;
+    text-transform: uppercase; color: var(--ink-faint);
+  }
+
+  /* chips */
+  .chip {
+    display: inline-block; font-family: "IBM Plex Mono", monospace;
+    font-size: .63rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+    padding: 3px 7px; border-radius: 2px; white-space: nowrap;
+  }
+  .chip-risk  { background: var(--risk-wash);  color: var(--risk); }
+  .chip-watch { background: var(--watch-wash); color: var(--watch); }
+  .chip-bh    { background: var(--bh-wash);    color: var(--bh); }
+  .chip-rh    { background: var(--rh-wash);    color: var(--rh); }
+
+  /* table */
+  .scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; min-width: 480px; }
+  th, td { text-align: left; padding: 10px 14px 10px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  thead th {
+    font-family: "IBM Plex Mono", monospace; font-size: .66rem; font-weight: 600;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint);
+    border-bottom: 1px solid var(--rule-strong); padding-bottom: 8px;
+  }
+  td.n, th.n { text-align: right; padding-right: 0; font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+  tbody tr:last-child td { border-bottom: 0; }
+  .win { font-weight: 600; }
+
+  /* watch-outs */
+  .outs { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; }
+  .outs > li {
+    display: grid; grid-template-columns: 74px 1fr; gap: 5px 16px;
+    padding: 14px 0; border-bottom: 1px solid var(--rule);
+  }
+  .outs > li:last-child { border-bottom: 0; }
+  .outs .sev { padding-top: 2px; }
+  .outs h3 { margin-bottom: 3px; }
+  .outs p { font-size: .9rem; color: var(--ink-soft); }
+  @media (max-width: 560px) { .outs > li { grid-template-columns: 1fr; } }
+
+  /* asks */
+  .asks { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .asks li { display: grid; grid-template-columns: 62px 1fr; gap: 14px; align-items: start; font-size: .95rem; }
+  .asks .who { padding-top: 3px; }
+
+  footer {
+    margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--rule);
+    font-size: .83rem; color: var(--ink-faint);
+  }
+</style>
+
+<div class="col">
+
+  <header class="masthead">
+    <div class="mast-rule"></div>
+    <p class="eyebrow">Ferrotec Holiday Party &nbsp;·&nbsp; Fri 18 Dec 2026 &nbsp;·&nbsp; 200 guests</p>
+    <h1 style="margin-top:12px">Blackhawk or Ruby Hill:<br>the short version</h1>
+  </header>
+
+  <section class="stack" style="padding-bottom:40px">
+    <div class="verdict">
+      <p class="eyebrow" style="color:var(--rh)">Bottom line</p>
+      <h2>Ruby Hill wins on money and on party. Blackhawk wins on the room.</h2>
+      <p>Ruby Hill is cheaper in every scenario we modeled — <em>including</em> one where all 200
+      guests eat filet mignon and drink premium spirits for five hours. It also runs an hour longer
+      and includes a dance floor. Blackhawk's case is atmosphere: a museum instead of a ballroom,
+      and a choice of entrée. That's worth something — but it costs $9,000–18,000, and the client
+      should choose it knowingly.</p>
+    </div>
+
+    <div class="verdict" style="border-left-color:var(--risk)">
+      <p class="eyebrow" style="color:var(--risk)">Before anything goes to Ferrotec</p>
+      <p><strong>Neither quote is finished.</strong> Blackhawk's cheese platters cover 100 of 200
+      guests and there's no dance floor in the document. Ruby Hill's bar closes two hours before its
+      own event ends, and six standard cost categories are missing. Presenting
+      <span class="num">$60,038</span> against <span class="num">$44,021</span> as final numbers
+      would set an expectation neither venue will hold.</p>
+    </div>
+  </section>
+
+  <section class="band stack">
+    <div class="duo">
+      <article class="card bh">
+        <div>
+          <p class="card-name">Blackhawk Museum</p>
+          <p class="note">Danville · West Coast Events Group</p>
+        </div>
+        <div>
+          <p class="bigfig c-bh">$60,038</p>
+          <p class="sub"><span class="num">$300</span> per guest · as quoted</p>
+        </div>
+        <ul class="facts">
+          <li><span class="k">Hours</span><span>6–10pm (4)</span></li>
+          <li><span class="k">Bar</span><span>Beer &amp; wine only, 4 hrs</span></li>
+          <li><span class="k">Dinner</span><span><strong>4 entrée choices</strong></span></li>
+          <li><span class="k">Svc chg</span><span><strong>35%</strong> + 8.75% tax</span></li>
+          <li><span class="k">Floor</span><span>No dance floor quoted</span></li>
+        </ul>
+      </article>
+
+      <article class="card rh">
+        <div>
+          <p class="card-name">The Club at Ruby Hill</p>
+          <p class="note">Pleasanton · Arcis Golf</p>
+        </div>
+        <div>
+          <p class="bigfig c-rh">$44,021</p>
+          <p class="sub"><span class="num">$220</span> per guest · as quoted</p>
+        </div>
+        <ul class="facts">
+          <li><span class="k">Hours</span><span>6–11pm (5)</span></li>
+          <li><span class="k">Bar</span><span>Full premium, <strong>3 hrs only</strong></span></li>
+          <li><span class="k">Dinner</span><span><strong>One entrée for all</strong></span></li>
+          <li><span class="k">Svc chg</span><span><strong>24%</strong> + 10.25% tax</span></li>
+          <li><span class="k">Floor</span><span>Dance floor + linens included</span></li>
+        </ul>
+      </article>
+    </div>
+
+    <p class="note">The 35% vs 24% service charge is the single biggest cost driver. Loaded with tax,
+    every dollar spent at Blackhawk costs <strong>7.4% more</strong> before you compare a single menu
+    price. 35% is also well above the 20–25% market norm — worth pushing on.</p>
+  </section>
+
+  <section class="band stack">
+    <div class="stack-tight">
+      <p class="eyebrow">Like-for-like</p>
+      <h2>Match the bar to the event and Ruby Hill still wins</h2>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr><th>Scenario</th><th class="n">Blackhawk</th><th class="n">Ruby Hill</th><th class="n">Gap</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>As quoted <span class="note">— different bars, different lengths</span></td>
+            <td class="n c-bh">$60,038</td><td class="n c-rh">$44,021</td><td class="n">$16,018</td>
+          </tr>
+          <tr>
+            <td>Beer &amp; wine, full event length</td>
+            <td class="n c-bh">$60,038</td><td class="n c-rh win">$41,833</td><td class="n">$18,205</td>
+          </tr>
+          <tr>
+            <td>Full bar, full event length</td>
+            <td class="n c-bh">$61,506</td><td class="n c-rh win">$51,676</td><td class="n">$9,830</td>
+          </tr>
+          <tr>
+            <td>Each venue's best case <span class="note">— RH filet for all + 5 hr premium bar; BH full bar + reception food fixed</span></td>
+            <td class="n c-bh">$64,002</td><td class="n c-rh win">$55,094</td><td class="n">$8,908</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note"><strong>Neither figure includes A/V.</strong> Blackhawk excludes it explicitly and
+    locks you to one vendor (OAVS) you can't bid out. Ruby Hill doesn't mention it. Add
+    <span class="num">$2,000–$6,000</span> either way.</p>
+  </section>
+
+  <section class="band stack">
+    <div class="stack-tight">
+      <p class="eyebrow">Watch-outs</p>
+      <h2>The six things most likely to cause a problem</h2>
+    </div>
+
+    <ul class="outs">
+      <li>
+        <div class="sev"><span class="chip chip-bh">Blackhawk</span></div>
+        <div>
+          <h3>No dance floor anywhere in the quote <span class="chip chip-risk">Blocker</span></h3>
+          <p>Dinner is 20 rounds of ten in the Lower Lobby. No dancefloor, no staging, no risers.
+          This may be a room-capacity problem, not just a pricing one — get the floor plan.</p>
+        </div>
+      </li>
+      <li>
+        <div class="sev"><span class="chip chip-bh">Blackhawk</span></div>
+        <div>
+          <h3>Reception food is short by roughly half <span class="chip chip-risk">High</span></h3>
+          <p>Cheese platters are priced per 50 people and only two are ordered — coverage for 100 of
+          200 guests. Passed apps run 3.5 pieces per person against a 4–6 standard. Fixing both adds
+          about <span class="num">$2,500</span>.</p>
+        </div>
+      </li>
+      <li>
+        <div class="sev"><span class="chip chip-bh">Blackhawk</span></div>
+        <div>
+          <h3>Hard constraints on décor and logistics <span class="chip chip-watch">Flag</span></h3>
+          <p>Battery candles only. Nothing stored overnight — in and out the same day. Security billed
+          at the 250–350 guest tier for a 200-guest event, and only "(1 hour)". Parking is a shared
+          retail plaza on the busiest shopping Friday of the year.</p>
+        </div>
+      </li>
+      <li>
+        <div class="sev"><span class="chip chip-rh">Ruby Hill</span></div>
+        <div>
+          <h3>The bar closes at 9pm on a party running to 11 <span class="chip chip-risk">Blocker</span></h3>
+          <p>Two dry hours — exactly the dancing hours. Extending premium spirits across the full five
+          hours costs <span class="num">$7,655</span> all-in. This is what makes the quote look cheaper
+          than it is.</p>
+        </div>
+      </li>
+      <li>
+        <div class="sev"><span class="chip chip-rh">Ruby Hill</span></div>
+        <div>
+          <h3>One entrée for all 200 guests <span class="chip chip-risk">High</span></h3>
+          <p>The quote says "SINGLE ENTREE." Every guest eats the same plate, and there's no stated
+          policy for vegetarian or allergy meals. Negotiate a two-choice menu or duet plate.</p>
+        </div>
+      </li>
+      <li>
+        <div class="sev"><span class="chip chip-rh">Ruby Hill</span></div>
+        <div>
+          <h3>Too much is simply missing <span class="chip chip-risk">High</span></h3>
+          <p>No A/V, security, bartender fees, coat check, valet or parking anywhere in the quote — and
+          no contract terms at all. Blackhawk at least disclosed its exclusions. Also: a December
+          cocktail hour on an outdoor patio with no heaters mentioned, and the quote
+          <strong>expires 29 August</strong>.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="band stack">
+    <div class="stack-tight">
+      <p class="eyebrow">This week</p>
+      <h2>Six questions that change the answer</h2>
+      <p class="note">Ruby Hill's quote expires 29 August — those go out first.</p>
+    </div>
+    <ul class="asks">
+      <li><span class="who"><span class="chip chip-rh">Ruby Hill</span></span><span>Reprice with the bar covering all five hours, and confirm whether a two-entrée menu is possible and at what surcharge.</span></li>
+      <li><span class="who"><span class="chip chip-rh">Ruby Hill</span></span><span>Price — or confirm as zero — A/V, security, bartender fees, coat check and parking. Send the full contract.</span></li>
+      <li><span class="who"><span class="chip chip-rh">Ruby Hill</span></span><span>Confirm in writing there is genuinely no F&amp;B minimum for 18 December, and extend the quote validity.</span></li>
+      <li><span class="who"><span class="chip chip-bh">Blackhawk</span></span><span>Send the Lower Lobby floor plan. Does it hold 20 rounds plus a dance floor and staging — and what does the floor cost?</span></li>
+      <li><span class="who"><span class="chip chip-bh">Blackhawk</span></span><span>Correct the cheese platter count, add a fourth passed item, and fix the security guest tier. Is the 35% negotiable?</span></li>
+      <li><span class="who"><span class="chip chip-bh">Blackhawk</span></span><span>Get the OAVS quote now — it's unavoidable and it isn't in the $60,038. And is the 10pm end firm?</span></li>
+    </ul>
+  </section>
+
+  <footer>
+    Figures verified line by line against Blackhawk event order #443-1 and Ruby Hill quote 63835076751.
+    Normalized scenarios are CTC modeling, not venue-quoted pricing. Full analysis available separately.
+  </footer>
+
+</div>
