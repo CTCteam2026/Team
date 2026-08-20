@@ -161,6 +161,25 @@ paid hour is invoiced. At the 75% utilization agencies plan around, true SoCal c
 — which turns a 32–35% margin per hour into 9–14%. Separately we bill at about 2x base salary
 against a 2.5–3x convention. Staff pay itself is at market.
 
+## The rate decision
+
+[`rate-decision-2027.html`](rate-decision-2027.html) — what to do about the above, in order.
+Published at https://claude.ai/code/artifact/cbdff236-7da3-405c-bc86-eb5a1dcd53cf
+
+1. **Measure utilization and overhead.** Billable hours ÷ paid hours from ClickUp against
+   payroll; non-project operating expense ÷ direct labor from the company P&L. One day of work,
+   no client impact, and it settles whether any of the rest is urgent.
+2. **Re-cost the builder.** Cost rate becomes salary + burden ÷ *billable* hours, not ÷ 2,080.
+   The $0.61/hr overhead line becomes a percentage of direct labor. Rename `% Profit` to
+   `% Gross Margin` — it has never been net.
+3. **Reprice on five tiers.** A Senior Event Manager costing $109 currently bills the same $90
+   as an Event Manager costing $89, so senior hours are the least profitable in the business.
+
+Illustrative card at 80% utilization / 15% overhead / 35% target net: SEM $168, EM $136,
+Lead Coordinator $115, Coordinator $93, Admin $81. All inside the observed $75–250 market range,
+but a 43–87% move — so the doc also carries four levers that reach the same margin without a
+rate increase.
+
 ## Files
 
 | File | What it is |
@@ -169,6 +188,7 @@ against a 2.5–3x convention. Staff pay itself is at market.
 | `build_pl_template.py` | Generates it. Edit the `SCOPE` list to change items or base weights, then re-run. |
 | `validate_against_history.py` | Back-test against the three reference events. |
 | `rate-benchmarks-2027.html` | 2027 market rate brief, national + SoCal. |
+| `rate-decision-2027.html` | What to change, in sequence, with a proposed tiered rate card. |
 
 ```bash
 python3 build_pl_template.py

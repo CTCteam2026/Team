@@ -1,0 +1,344 @@
+<title>The 2027 Rate Decision</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,500;0,600;0,700;1,600&family=Barlow:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --ground:#F7F9FD; --surface:#FFFFFF; --surface-2:#EEF2FB;
+  --ink:#1F243D; --body:#4C5773; --muted:#7B84A3;
+  --rail:#E5E8F8; --line:#DDE3F2;
+  --blue:#417CBC; --pink:#EE6197; --pink-soft:#FBDDE9;
+  --c1:#1E4470; --c2:#2F6BA8; --c3:#5896D2; --c4:#A3C6E8;
+  --warn-ink:#8A4B12; --warn-bg:#FBEEE2; --warn-line:#E8C9A8;
+  --good-ink:#1E5B44; --good-bg:#E4F2EC; --good-line:#B4D9C9;
+  --shadow:0 1px 2px rgba(31,36,61,.05), 0 8px 24px -14px rgba(31,36,61,.22);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#141726; --surface:#1C2036; --surface-2:#232842;
+    --ink:#EEF1FA; --body:#B3BAD2; --muted:#7E87A6;
+    --rail:#2A3050; --line:#2E3554;
+    --blue:#5B96D8; --pink:#E4568F; --pink-soft:#3B2334;
+    --c1:#BBD5EF; --c2:#86AFDA; --c3:#5687C0; --c4:#3A6294;
+    --warn-ink:#E8B888; --warn-bg:#2E2519; --warn-line:#4A3A22;
+    --good-ink:#8FCFB2; --good-bg:#16281F; --good-line:#284A38;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -14px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#141726; --surface:#1C2036; --surface-2:#232842;
+  --ink:#EEF1FA; --body:#B3BAD2; --muted:#7E87A6;
+  --rail:#2A3050; --line:#2E3554;
+  --blue:#5B96D8; --pink:#E4568F; --pink-soft:#3B2334;
+  --c1:#BBD5EF; --c2:#86AFDA; --c3:#5687C0; --c4:#3A6294;
+  --warn-ink:#E8B888; --warn-bg:#2E2519; --warn-line:#4A3A22;
+  --good-ink:#8FCFB2; --good-bg:#16281F; --good-line:#284A38;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -14px rgba(0,0,0,.6);
+}
+
+*{box-sizing:border-box}
+body{margin:0; background:var(--ground); color:var(--body);
+  font-family:Barlow,"Helvetica Neue",Arial,sans-serif; font-size:16px; line-height:1.6;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:980px; margin:0 auto; padding:clamp(28px,5vw,64px) clamp(18px,4vw,32px) 80px;
+  display:flex; flex-direction:column; gap:clamp(34px,5vw,52px)}
+h1,h2,h3,.num{font-family:Poppins,"Helvetica Neue",Arial,sans-serif; color:var(--ink)}
+h1{font-size:clamp(30px,5.2vw,46px); font-weight:700; line-height:1.1; letter-spacing:-.02em;
+  margin:0; text-wrap:balance}
+h2{font-size:clamp(19px,2.6vw,23px); font-weight:600; line-height:1.25; margin:0 0 4px;
+  letter-spacing:-.01em; text-wrap:balance}
+h3{font-size:15.5px; font-weight:600; margin:0 0 6px}
+p{margin:0}
+b,strong{font-weight:600; color:var(--ink)}
+em{font-style:italic}
+section{display:flex; flex-direction:column; gap:16px}
+.lede{max-width:68ch}
+
+.eyebrow{font-family:Poppins,sans-serif; font-size:11.5px; font-weight:600; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--muted)}
+.rule{height:3px; border-radius:2px; margin-top:22px;
+  background:linear-gradient(100deg,var(--pink),var(--blue))}
+.standfirst{font-size:clamp(17px,2.3vw,19.5px); line-height:1.55; margin-top:18px; max-width:64ch}
+.standfirst b{color:var(--ink)}
+
+/* cards */
+.card{background:var(--surface); border:1px solid var(--line); border-radius:12px;
+  padding:20px 22px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px}
+.step{display:grid; grid-template-columns:auto 1fr; gap:0 18px; align-items:start}
+.stepnum{grid-row:1/span 3; font-family:Poppins,sans-serif; font-size:15px; font-weight:700;
+  color:var(--surface); background:var(--ink); width:30px; height:30px; border-radius:50%;
+  display:grid; place-items:center; margin-top:1px}
+.step h3{grid-column:2; margin:2px 0 6px}
+.step .meta{grid-column:2; font-size:12.5px; color:var(--muted); margin-bottom:10px;
+  font-family:Poppins,sans-serif; font-weight:500}
+.bodytext{display:flex; flex-direction:column; gap:11px; max-width:70ch}
+.step .bodytext{grid-column:2}
+.step ul{margin:2px 0 0; padding-left:19px; display:flex; flex-direction:column; gap:5px}
+.step li{font-size:15px}
+
+/* tables */
+.scroll{overflow-x:auto; border:1px solid var(--line); border-radius:12px; background:var(--surface);
+  box-shadow:var(--shadow)}
+table{border-collapse:collapse; width:100%; min-width:600px; font-size:14.5px}
+caption{caption-side:top; text-align:left; padding:16px 18px 0; font-family:Poppins,sans-serif;
+  font-size:13px; font-weight:600; color:var(--ink)}
+caption span{font-family:Barlow,sans-serif; font-weight:400; color:var(--muted)}
+th,td{padding:9px 14px; text-align:right; border-bottom:1px solid var(--line); white-space:nowrap}
+th:first-child,td:first-child{text-align:left; white-space:normal}
+thead th{font-family:Poppins,sans-serif; font-size:11px; font-weight:600; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--muted); padding-top:14px; vertical-align:bottom}
+tbody tr:last-child td{border-bottom:none}
+tbody td:first-child{color:var(--ink); font-weight:500}
+td.figure,th.figure{font-variant-numeric:tabular-nums}
+td.key{color:var(--ink); font-weight:600; background:var(--surface-2)}
+th.key{background:var(--surface-2)}
+tr.spotlight td{background:var(--pink-soft); color:var(--ink); font-weight:600}
+td.neg{color:var(--pink); font-weight:600}
+
+/* stack chart */
+.chart{background:var(--surface); border:1px solid var(--line); border-radius:12px;
+  padding:22px; box-shadow:var(--shadow)}
+.stack{position:relative; height:46px; margin:34px 0 4px}
+.segs{display:flex; height:100%; gap:2px}
+.seg{position:relative; border-radius:2px}
+.seg:first-child{border-radius:5px 2px 2px 5px}
+.s1{background:var(--c1)} .s2{background:var(--c2)}
+.s3{background:var(--c3)} .s4{background:var(--c4)}
+.mark{position:absolute; top:-26px; bottom:-8px; width:2px; background:var(--ink)}
+.mark.alt{background:var(--pink)}
+.mark b{position:absolute; top:-3px; left:6px; font-family:Poppins,sans-serif; font-size:11.5px;
+  font-weight:600; color:var(--ink); white-space:nowrap; font-variant-numeric:tabular-nums}
+.mark.alt b{color:var(--pink)}
+.mark.flip b{left:auto; right:6px}
+.axis{position:relative; height:26px; margin-top:8px; border-top:1px solid var(--line)}
+.axis span{position:absolute; top:6px; transform:translateX(-50%); font-size:11.5px;
+  color:var(--muted); font-variant-numeric:tabular-nums}
+.key-list{display:flex; flex-wrap:wrap; gap:8px 20px; margin-top:20px; font-size:13.5px}
+.key-list span{display:flex; align-items:center; gap:8px}
+.key-list i{width:11px; height:11px; border-radius:3px; flex:none}
+.key-list b{font-variant-numeric:tabular-nums; color:var(--ink)}
+
+/* callouts */
+.callout{border-radius:10px; padding:16px 18px; font-size:15px;
+  background:var(--warn-bg); border:1px solid var(--warn-line); color:var(--warn-ink)}
+.callout.good{background:var(--good-bg); border-color:var(--good-line); color:var(--good-ink)}
+.callout b{color:inherit}
+.chip{align-self:flex-start; font-family:Poppins,sans-serif; font-size:10.5px; font-weight:600;
+  letter-spacing:.11em; text-transform:uppercase; padding:3px 9px; border-radius:20px;
+  background:var(--pink-soft); color:var(--ink)}
+.grid2{display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
+.note{font-size:13.5px; color:var(--muted); max-width:74ch}
+.foot{border-top:1px solid var(--line); padding-top:22px; font-size:13.5px; color:var(--muted);
+  display:flex; flex-direction:column; gap:10px}
+.foot a{color:var(--blue); text-decoration:none; border-bottom:1px solid var(--rail)}
+.foot a:hover{border-bottom-color:var(--blue)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Coast to Coast Conferences &amp; Events · Rate Review</p>
+    <div class="rule"></div>
+    <h1 style="margin-top:26px">The 2027 rate decision</h1>
+    <p class="standfirst">Three things to do, in order, and what each one unblocks. The first
+      costs nothing and settles whether the rest are urgent. <b>Do not change a client rate until
+      step 1 is done.</b></p>
+  </header>
+
+  <section>
+    <h2>Why $90 an hour is the question</h2>
+    <p class="lede">A billed hour has to carry four things before a dollar of profit: the salary,
+      the payroll burden on it, the share of the year that person is not billable, and the
+      overhead that keeps the lights on. Here is a Southern California Event Manager at 80%
+      utilization and 15% overhead.</p>
+
+    <div class="chart">
+      <div class="stack">
+        <div class="mark" style="left:60.0%"><b>we bill $90</b></div>
+        <div class="mark alt flip" style="left:90.7%"><b>$136 for 35% margin</b></div>
+        <div class="segs">
+          <div class="seg s1" style="width:31.58%"></div>
+          <div class="seg s2" style="width:9.47%"></div>
+          <div class="seg s3" style="width:10.27%"></div>
+          <div class="seg s4" style="width:7.70%"></div>
+        </div>
+      </div>
+      <div class="axis">
+        <span style="left:0%">$0</span><span style="left:33.3%">$50</span>
+        <span style="left:66.7%">$100</span><span style="left:100%">$150</span>
+      </div>
+      <div class="key-list">
+        <span><i class="s1"></i>Salary <b>$47.37</b></span>
+        <span><i class="s2"></i>Payroll burden <b>$14.21</b></span>
+        <span><i class="s3"></i>Non-billable time <b>$15.40</b></span>
+        <span><i class="s4"></i>Overhead <b>$11.55</b></span>
+        <span style="color:var(--ink);font-weight:600">True cost <b>$88.52</b></span>
+      </div>
+    </div>
+
+    <p class="lede">At $90 that hour clears <b>$1.48</b>. The P&amp;L reports it as 32% margin
+      because it only counts the first two layers.</p>
+
+    <div class="scroll">
+      <table>
+        <caption>What $90/hr actually yields <span>· SoCal Event Manager</span></caption>
+        <thead><tr><th>If utilization is…</th><th>and overhead is…</th>
+          <th class="figure">true cost / hr</th><th class="figure key">real margin</th></tr></thead>
+        <tbody>
+          <tr><td>100% — every paid hour billed</td><td class="figure">0%</td><td class="figure">$61.58</td><td class="figure key">31.6%</td></tr>
+          <tr><td>90%</td><td class="figure">10%</td><td class="figure">$75.27</td><td class="figure key">16.4%</td></tr>
+          <tr class="spotlight"><td>80%</td><td class="figure">15%</td><td class="figure">$88.52</td><td class="figure">1.6%</td></tr>
+          <tr><td>75% — the agency planning norm</td><td class="figure">20%</td><td class="figure">$98.53</td><td class="figure key neg">−9.5%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Only the top row produces the margin the P&amp;L reports, and it requires
+      zero overhead and a staff that never takes a day off. Which row is true is an empirical
+      question — that is step 1.</p>
+  </section>
+
+  <section>
+    <h2>What to do</h2>
+
+    <div class="card step">
+      <div class="stepnum">1</div>
+      <h3>Measure two numbers</h3>
+      <p class="meta">This month · from records you already have · no client impact</p>
+      <div class="bodytext">
+        <p><b>Utilization.</b> For each staff member over the last 12 months: hours charged to a
+          client project ÷ total hours paid. ClickUp time entries against payroll.</p>
+        <p><b>Overhead rate.</b> Total operating expense that is not project labor — rent,
+          software, insurance, phones, admin and BD salaries, professional fees — divided by total
+          project labor cost. One number from the P&amp;L.</p>
+        <p>Everything below is conditional on these two. They take a day and they decide whether
+          this is an urgent repricing or a minor tune-up.</p>
+      </div>
+    </div>
+
+    <div class="card step">
+      <div class="stepnum">2</div>
+      <h3>Re-cost the P&amp;L on the real basis</h3>
+      <p class="meta">Same week · a change to the builder · still no client impact</p>
+      <div class="bodytext">
+        <p>Two edits to the model:</p>
+        <ul>
+          <li>Cost rate becomes <em>salary + burden ÷ billable hours</em>, not ÷ 2,080. The
+            builder gets a utilization input; $60 and $42 stop being typed in and start being
+            derived.</li>
+          <li>The $0.61/hr overhead line becomes a percentage of direct labor — the number from
+            step 1. At 15% that is roughly $9 on a manager hour, not 61 cents.</li>
+        </ul>
+        <p>Then re-run the last four P&amp;Ls and read the real margins. <b>Rename the current
+          "% Profit" column to "% Gross Margin"</b> whatever happens — it has never been net
+          profit, and treating it as such is how we got here.</p>
+      </div>
+    </div>
+
+    <div class="card step">
+      <div class="stepnum">3</div>
+      <h3>Reprice on tiers, not two rates</h3>
+      <p class="meta">Next proposal cycle · client-facing</p>
+      <div class="bodytext">
+        <p>Today a Senior Event Manager and an Event Manager both bill $90, and every coordinator
+          bills $65. Senior hours cost $109 and bill the same as hours costing $88 — <b>our most
+          experienced people are our least profitable</b>. Five tiers fixes that without any
+          single rate moving as far.</p>
+      </div>
+    </div>
+
+    <div class="scroll">
+      <table>
+        <caption>Proposed 2027 client rate card <span>· SoCal · 80% utilization, 15% overhead,
+          35% target net margin</span></caption>
+        <thead><tr><th>Role</th><th class="figure">true cost / hr</th>
+          <th class="figure key">proposed rate</th><th class="figure">today</th>
+          <th class="figure">change</th></tr></thead>
+        <tbody>
+          <tr><td>Senior Event Manager</td><td class="figure">$109</td><td class="figure key">$168</td><td class="figure">$90</td><td class="figure">+87%</td></tr>
+          <tr><td>Event Manager</td><td class="figure">$89</td><td class="figure key">$136</td><td class="figure">$90</td><td class="figure">+51%</td></tr>
+          <tr><td>Lead Event Coordinator</td><td class="figure">$74</td><td class="figure key">$115</td><td class="figure">$65</td><td class="figure">+77%</td></tr>
+          <tr><td>Event Coordinator</td><td class="figure">$60</td><td class="figure key">$93</td><td class="figure">$65</td><td class="figure">+43%</td></tr>
+          <tr><td>Admin Assistant</td><td class="figure">$53</td><td class="figure key">$81</td><td class="figure">—</td><td class="figure">new</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Every proposed rate sits inside the observed corporate market range of
+      $75–$250/hr. They are not aggressive — they are what the arithmetic requires. But they are a
+      large move on a renewal, which is what the next section is for.</p>
+  </section>
+
+  <section>
+    <h2>If a 40–50% increase is not sellable</h2>
+    <p class="lede">Margin is a ratio. Rates are one lever on it and usually the hardest one to
+      pull on an existing client. These move the same number.</p>
+    <div class="grid2">
+      <div class="card">
+        <span class="chip">Lever</span>
+        <h3>Phase it over the renewal cycle</h3>
+        <p>Half the gap in 2027, half in 2028. New logos get the full card immediately, so the
+          increase never has to be explained to someone who already signed.</p>
+      </div>
+      <div class="card">
+        <span class="chip">Lever</span>
+        <h3>Sell fewer hours at a higher rate</h3>
+        <p>The scale index already stops hours ballooning with attendance. Trimming 15% of
+          pre-planning hours and raising rates 20% lands the same revenue at a better margin, and
+          reads as a leaner proposal.</p>
+      </div>
+      <div class="card">
+        <span class="chip">Lever</span>
+        <h3>Make the admin fee real</h3>
+        <p>2% returns about one margin point. A 6–8% administrative fee, or a flat project
+          management fee, is normal in this industry and does not touch the hourly rates clients
+          compare.</p>
+      </div>
+      <div class="card">
+        <span class="chip">Lever</span>
+        <h3>Stop discounting off the top</h3>
+        <p>The 5% multi-year discount comes straight out of net. At a true 10% margin it is half
+          the profit. Tie it to something that lowers our cost — a signed multi-year term, earlier
+          commitment, fewer site visits.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>What not to do</h2>
+    <div class="card">
+      <div class="bodytext">
+        <p><b>Do not cut pay.</b> $60 and $42 imply $96,000 and $67,200 salaries, both at market
+          for Southern California. Paying under market on roles this hard to hire is a false
+          economy, and it is not where the gap is.</p>
+        <p><b>Do not reprice before step 1.</b> If utilization turns out to be 95%, the proposed
+          card is roughly 25% too high and we would be walking into renewals with a number we
+          cannot defend.</p>
+        <p><b>Do not hire the Admin Assistant as overhead.</b> At $53/hr true cost the role only
+          works if the hours are billable — the proposal template already has Document Management
+          and Registration admin lines that could carry them. Decide that before the offer, not
+          after.</p>
+      </div>
+    </div>
+    <div class="callout good">
+      <b>The likely reality.</b> CTC is a going concern with a healthy book, so utilization is
+      probably well above 75% and overhead below 20% — the top half of that table, not the bottom.
+      The point is not that the business is broken. It is that we have been quoting gross margin
+      as if it were profit, and nobody knows by how much. One day of timesheet work closes that.
+    </div>
+  </section>
+
+  <section class="foot">
+    <p><b style="color:var(--ink)">Basis.</b> Salaries are 2027 Southern California midpoints from
+      the rate benchmark, payroll burden at 30%, and the utilization and overhead figures stated
+      on each table. True cost = (salary × 1.30 ÷ utilization) × (1 + overhead). Proposed rate =
+      true cost ÷ (1 − target margin).</p>
+    <p><b style="color:var(--ink)">Confidence.</b> The salary inputs are aggregator medians and
+      vary widely by source. Utilization and overhead are assumptions, not measurements — that is
+      the entire reason step 1 comes first. Treat every rate here as a starting point for the
+      conversation, not a decision already made.</p>
+    <p>Companion to the <a href="https://claude.ai/code/artifact/43877925-fa04-4043-9643-ca9434089cd9">2027
+      rate benchmarks</a>.</p>
+  </section>
+
+</div>
