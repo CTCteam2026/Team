@@ -1,0 +1,97 @@
+<!--
+  CTC HOMEPAGE — HERO (paste-ready Divi Code module)
+  How to use:
+   1) Edit the Home page with Divi → add a Section → add a single-column Row →
+      inside it add a "Code" module.
+   2) Paste EVERYTHING in this file into the Code module content box.
+   3) Set the Section & Row padding to 0 (Design → Spacing) so the snippet controls its own spacing.
+   4) Replace the image: swap the src on the <img id="ctc-hero-photo"> for your licensed
+      CTC event / Long Beach waterfront photo (WebP, ~1600px, duotone navy). Keep the alt text.
+   5) All copy is plain text below — edit directly in the Code module or later.
+  Notes: fonts load from Google Fonts (Poppins + Barlow). Everything is scoped under
+  .ctc so it won't collide with your theme. Colors are the CTC brand palette.
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap');
+
+.ctc{--navy:#1F243D;--blue:#417CBC;--blue2:#5A93CF;--pink:#EE6197;--purple:#8B5FBF;
+  --peri:#E5E8F8;--paper:#F7F9FD;--card:#fff;--slate:#4C5773;--soft:#7A85A0;--line:#E3E7F3;
+  --grad:linear-gradient(100deg,#EE6197,#8B5FBF 52%,#417CBC);
+  --disp:'Poppins',-apple-system,Segoe UI,sans-serif;--body:'Barlow',-apple-system,Segoe UI,sans-serif;}
+.ctc *{box-sizing:border-box}
+.ctc-hero{background:radial-gradient(900px 420px at 88% -8%,rgba(238,97,151,.10),transparent 60%),
+  radial-gradient(760px 460px at 6% 108%,rgba(65,124,188,.12),transparent 60%),var(--paper);
+  font-family:var(--body);color:var(--slate);padding:74px 24px 64px}
+.ctc-wrap{max-width:1160px;margin:0 auto}
+.ctc-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:46px;align-items:center}
+.ctc-eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--disp);font-weight:600;
+  font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#2F5C93;background:var(--peri);
+  border:1px solid var(--line);padding:8px 15px;border-radius:999px;margin-bottom:24px}
+.ctc-eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--pink)}
+.ctc-h1{font-family:var(--disp);font-weight:800;font-size:clamp(36px,5vw,60px);line-height:1.08;
+  letter-spacing:-.03em;color:var(--navy);margin:0;max-width:15ch}
+.ctc-h1 i{color:var(--pink);font-style:italic;font-weight:800}
+.ctc-sub{font-size:clamp(17px,1.9vw,20px);line-height:1.55;color:var(--slate);max-width:56ch;margin:22px 0 0}
+.ctc-sub b{color:var(--navy);font-weight:600}
+.ctc-cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:32px}
+.ctc-btn{display:inline-flex;align-items:center;font-family:var(--disp);font-weight:600;font-size:16px;
+  padding:15px 28px;border-radius:999px;border:1px solid transparent;cursor:pointer;text-decoration:none;transition:.18s}
+.ctc-btn-primary{background:var(--grad);color:#fff}
+.ctc-btn-primary:hover{transform:translateY(-1px);filter:saturate(1.1)}
+.ctc-btn-ghost{background:transparent;border-color:var(--line);color:var(--navy)}
+.ctc-btn-ghost:hover{border-color:var(--pink);color:var(--pink)}
+.ctc-photo{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);
+  box-shadow:0 34px 80px -34px rgba(31,36,61,.5);aspect-ratio:4/5;background:var(--navy)}
+.ctc-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.ctc-photo .cap{position:absolute;left:16px;bottom:16px;right:16px;background:rgba(31,36,61,.55);
+  backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:14px 16px;color:#fff}
+.ctc-photo .cap b{font-family:var(--disp);font-weight:800;font-size:18px;display:block}
+.ctc-photo .cap span{font-size:12px;color:#D5DBF0}
+.ctc-proof{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:44px}
+.ctc-proof>div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 18px}
+.ctc-proof .n{font-family:var(--disp);font-weight:800;font-size:clamp(24px,3vw,34px);color:var(--navy);
+  letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.ctc-proof .n.pink{color:var(--pink)}
+.ctc-proof .l{font-size:13px;color:var(--soft);margin-top:2px}
+.ctc-badges{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin-top:32px;
+  padding-top:24px;border-top:1px solid var(--line)}
+.ctc-badges .lead{font-family:var(--disp);font-size:11px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--soft)}
+.ctc-badges .pill{background:var(--peri);border-radius:999px;padding:6px 13px;font-family:var(--disp);
+  font-weight:600;font-size:12px;color:#2A3155}
+@media(max-width:900px){.ctc-grid{grid-template-columns:1fr;gap:30px}.ctc-photo{aspect-ratio:16/10}}
+@media(max-width:600px){.ctc-proof{grid-template-columns:repeat(2,1fr)}}
+</style>
+
+<div class="ctc ctc-hero">
+  <div class="ctc-wrap">
+    <div class="ctc-grid">
+      <div>
+        <span class="ctc-eyebrow"><span class="dot"></span> Certified woman-owned · Long Beach, CA · Since 1994</span>
+        <h1 class="ctc-h1">Events, run <i>flawlessly</i> — for 15–40% less.</h1>
+        <p class="ctc-sub"><b>Coast to Coast Conferences &amp; Events</b> is your full-service event partner — since 1994, sweating every detail so your team can enjoy the room. Real expertise, real relationships, real energy behind every event.</p>
+        <div class="ctc-cta">
+          <a class="ctc-btn ctc-btn-primary" href="/contact/">Request a Proposal</a>
+          <a class="ctc-btn ctc-btn-ghost" href="/case-studies/">See Case Studies</a>
+        </div>
+      </div>
+      <div class="ctc-photo">
+        <!-- REPLACE src with your licensed CTC event / Long Beach waterfront photo (upload to WP Media, paste its URL). Keep the alt text. -->
+        <img id="ctc-hero-photo" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20800%201000'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='0'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='%2320264A'/%3E%3Cstop%20offset='1'%20stop-color='%23417CBC'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='800'%20height='1000'%20fill='url(%23g)'/%3E%3Ctext%20x='400'%20y='505'%20fill='%23ffffff'%20fill-opacity='0.7'%20font-family='sans-serif'%20font-size='34'%20text-anchor='middle'%3EYour%20event%20photo%3C/text%3E%3C/svg%3E" alt="CTC-managed conference on the Long Beach waterfront">
+        <div class="cap"><b>2,500+ events since 1994</b><span>Swap for a licensed CTC event / Long Beach waterfront image.</span></div>
+      </div>
+    </div>
+
+    <div class="ctc-proof">
+      <div><div class="n pink">15–40%</div><div class="l">Saved on event costs</div></div>
+      <div><div class="n pink">25%</div><div class="l">Of your time, back</div></div>
+      <div><div class="n">2,500+</div><div class="l">Events produced</div></div>
+      <div><div class="n">3M+</div><div class="l">Attendees served</div></div>
+    </div>
+
+    <div class="ctc-badges">
+      <span class="lead">Trusted across</span>
+      <span class="pill">Corporate</span><span class="pill">Associations</span><span class="pill">Government</span><span class="pill">Nonprofit</span><span class="pill">Sports &amp; Community</span>
+    </div>
+  </div>
+</div>
