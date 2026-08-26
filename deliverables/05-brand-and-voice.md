@@ -13,7 +13,8 @@
 - **Tagline / positioning:** **"Your Event Partner."**
 - **Parent:** a subsidiary of **Manire Management, Inc.**
 - **Founder & President:** **Michelle Manire** (CMM; Leadership Long Beach; Goldman Sachs 10KSB; UCLA Anderson MDE).
-- **Founded:** 1994 · **Downtown Long Beach, California.**
+- **Founded:** 1994 · **Long Beach, California.**
+- **NAP (confirmed):** Coast to Coast Conferences & Events · 1 World Trade Center, Suite 800, Long Beach, CA 90831 · **562-980-7566** · team@ctcconferences.com. Use this exact NAP everywhere (site footer, schema, Google Business Profile, directories).
 - **Key differentiator to lead with everywhere:** **certified woman-owned business.**
 - **Primary service focus:** **in-person events & conferences** (hybrid/virtual are secondary, merged). **National** footprint — **do not use "international"** in messaging.
 - **Years in business:** since 1994 — **confirm the exact number to use publicly** (proposal shows "30+ years / three decades").
@@ -23,14 +24,17 @@
 |---|---|---|
 | Navy / indigo | `#1F243D` | Headlines, primary text |
 | Royal blue | `#417CBC` | Stats, skyline, links, accents |
-| Pink / magenta | `#EE6197` | Script accent, highlights, CTA gradient end |
-| Purple | `#8B5FBF` | Logo gradient mid |
-| Periwinkle | `#E5E8F8` | Light backgrounds, watermark, wave art |
+| Deep blue | `#2F5C93` | Button/gradient end, deep accents |
+| Purple | `#6C4BB0` | Button/gradient start (used sparingly) |
+| Pink / magenta | `#EE6197` | Accent ONLY — the italic accent word + key savings stats. Never on buttons. |
+| Periwinkle | `#E5E8F8` | Light backgrounds, pills, wave art |
 | White / off-white | `#FFFFFF` / `#F7F9FD` | Ground |
 | Slate | `#4C5773` | Body text |
 
-- **Logo gradient:** `linear-gradient(100deg, #EE6197 → #8B5FBF → #417CBC)` (pink→purple→blue) — used on the wordmark rule and primary CTA.
+- **Emphasis: blue-forward.** Lead with navy + blues; purple is a minor gradient note; **pink is a sparing accent only.**
+- **Button / UI gradient:** `linear-gradient(105deg, #6C4BB0 → #3E6FB2 → #2F5C93)` (**purple→blue, blue-weighted**) — buttons, logo rule, gradient numerals, final CTA. **No pink in buttons.**
 - **Typography:** **Poppins** (headings/display, 600–800) · **Barlow** (body, 400–600). **Amsterdam Three script is PRINT/COLLATERAL ONLY — do NOT use the cursive on the website.** On the web, use a **pink italic** Poppins for the same accent word.
+- **Copy rule — NO em dashes (—) in web copy.** Use commas or periods. En dashes (–) are fine for number ranges (15–40%, 1994–2026).
 - **Imagery motif:** grayscale/duotone **Long Beach waterfront**, blue **city-skyline** silhouette, subtle wave line-art.
 - **Section markers:** numeric "O1 / O2 / O3" style in the proposal.
 
