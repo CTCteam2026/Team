@@ -3,6 +3,11 @@
 
 ---
 
+## 0. The story we tell (the spine every page serves)
+> Behind every great event is a team that never let a detail slip. For 30 years, that team has been CTC. You bring the vision and the people — we take on every moving part, with the relationships, expertise, and proven process to do it for **15–40% less** and **25% less of your time**, without cutting a corner. And because we genuinely love this work, it shows in the room. That's why **75% of our clients never plan another event without us**. Whatever your event, wherever it happens — we make it flawless. **Your event partner, since 1994.**
+
+**Narrative arc for the site:** Promise → one service (*whatever your event, wherever it happens*) → **why it works** (relationships + expertise + partnership + energy = the engine behind the savings) → proven process → proof → who we serve → invite. The savings must always read as **capability, not discount**.
+
 ## 1. Identity
 - **Full name:** Coast to Coast Conferences & Events — short form **CTC**.
 - **Tagline / positioning:** **"Your Event Partner."**

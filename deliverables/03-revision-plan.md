@@ -12,27 +12,31 @@ Realign the site to the **2026 proposal brand** (full spec in `05-brand-and-voic
 
 **Problem:** duplicate/fragmented pages (T-2) dilute authority and confuse crawlers + AI.
 
+**Positioning decision — "events, not formats" is structural, not cosmetic.** There is **ONE event-management service**, format-agnostic. We do **not** ship In-Person / Hybrid / Virtual pages; the site speaks at the level of *"events."* This changes IA, nav, and page inventory — not just copy.
+
 **Proposed sitemap:**
 ```
 Home
-├── Services
-│   ├── In-Person Events & Conferences   ← PRIMARY service (lead here)
-│   └── Hybrid & Virtual  (ONE merged page — secondary; incl. Virtual Event Depot)
-├── Industries              ← NEW hub (Associations, Corporate, Government, Nonprofit, Sports/Endurance)
-├── Case Studies            ← rebuild of "Past Events" as structured, metric-led stories
+├── What We Do  (ONE event-management service page — full scope of work; format-agnostic)
+├── Why CTC     (the differentiator: relationships + expertise + partnership + energy)
+├── Industries  (Corporate, Associations, Government, Nonprofit, Sports & Community)
+├── Case Studies  (rebuild of "Past Events" as structured, metric-led stories)
 ├── About
-│   ├── Our Story (1994→today, the rebrand)
-│   └── Our Team
+│   ├── Our Story (1994→today, certified woman-owned, Michelle Manire)
+│   └── Our Team  (the "team energy")
 ├── Resources  (single content hub — merge /blog/, /blogs-2/, /content-hub/)
-├── FAQ                     ← NEW, schema-marked, feeds AI answers
+├── FAQ        (schema-marked, feeds AI answers)
 └── Contact / Request a Proposal
 ```
 
 **Consolidation actions:**
+- **Retire the format pages.** 301 `/in-person/`, `/hybrid-virtual/`, `/hybrid-virtual/virtual-event-depot/`, `/event-management/`, `/event-management-usa/` → the single **What We Do** page. Virtual Event Depot becomes a capability line there, not a destination. *(T-2, C-1)*
 - Merge `/blog/`, `/blogs-2/`, `/content-hub/` → one **Resources** hub; 301 the losers. *(T-2)*
-- Pick ONE canonical event-management page; 301 `/event-management-usa/` into it (or repurpose as a national landing page with distinct intent). *(T-2, C-1)*
 - 301 all legacy `CTC Destination & Meeting Management` URLs → successors. *(T-3)*
-- Add contextual internal links between Services ⇄ Industries ⇄ Case Studies. *(T-6)*
+- Add contextual internal links: What We Do ⇄ Why CTC ⇄ Industries ⇄ Case Studies. *(T-6)*
+
+**Homepage story flow (cohesive narrative — see `/mockups/homepage-full.html`):**
+Hero (promise) → AI-answer definition → **What we do** (one service, "whatever your event, wherever it happens") → **Why CTC** (where the savings actually come from) → **How we work** (proven process) → **Proof band** → **Case study** → **Who we serve** (industries) → **FAQ** → invite. The "Why CTC" beat makes the 15–40% believable (capability, not discount); "Who we serve" gives industries a home on the page.
 
 ---
 
@@ -40,12 +44,12 @@ Home
 
 The first screen must answer **what / who / where + proof + one action** — for humans *and* for the AI engine that will summarize the page.
 
-**Draft copy** (visualized in `/mockups/homepage-hero.html`, built in the **current brand**: Poppins/Barlow, navy-blue-pink gradient, Sacramento script accent):
+**Draft copy** (visualized in `/mockups/homepage-hero.html`, built in the **current brand**: Poppins/Barlow, navy-blue-pink gradient, pink *italic* accent — no cursive on the web):
 
 - **Eyebrow:** `Certified woman-owned · Long Beach, CA · Since 1994`
-- **H1:** `In-person events, run flawlessly — for 15–40% less.` *(with "flawlessly" as a pink **italic** accent — no cursive on the web)*
-- **Subhead:** `Coast to Coast Conferences & Events (CTC) is your full-service partner for in-person events and conferences. Since 1994 we've produced 2,500+ events for up to 10,000 daily attendees — cutting event costs 15–40% and giving back 25% of your time. Real expertise, real relationships, real energy — it's why 75% of clients come back, year after year.`
-- **Proof strip (4 stat tiles):** `15–40% cost saved` · `25% time back` · `2,500+ events` · `3M+ attendees`
+- **H1:** `Events, run flawlessly — for 15–40% less.` *(no format label; "flawlessly" is a pink **italic** accent)*
+- **Subhead (story, not stats — tiles carry the numbers):** `Coast to Coast Conferences & Events is your full-service event partner — since 1994, sweating every detail so your team can enjoy the room. Real expertise, real relationships, real energy behind every event.`
+- **Proof strip (4 stat tiles — the numbers live here):** `15–40% cost saved` · `25% time back` · `2,500+ events` · `3M+ attendees`
 - **Primary CTA:** `Request a Proposal` (logo gradient) · **Secondary:** `See Case Studies`
 - **Trust row:** market-segment pills (Corporate / Associations / Government / Nonprofit / Sports & Rec); swap for cleared client logos when available.
 
@@ -62,15 +66,15 @@ The first screen must answer **what / who / where + proof + one action** — for
 - Meta: `Certified woman-owned, full-service in-person event & conference management since 1994. We run events up to 10,000 attendees and cut event costs 15–40%. Get a proposal.`
 - H1: `In-person events, flawlessly run — for 15–40% less.`
 
-**In-Person Events & Conferences** *(primary service page)*
-- Title: `In-Person Event & Conference Management | CTC`
-- Meta: `From board meetings to 10,000-attendee conferences — venue & hotel negotiation, logistics, registration, onsite management and exhibitor coordination, handled end to end.`
-- H1: `In-person events, managed down to the last detail.`
+**What We Do** *(the single event-management service page — replaces all format pages)*
+- Title: `Full-Service Event Management | CTC`
+- Meta: `One partner, every detail. Venue & hotel negotiation, registration, onsite management, exhibitor coordination and more — for events up to 10,000 attendees and $8M budgets.`
+- H1: `One partner. Every detail.`
 
-**Hybrid & Virtual** *(ONE merged, secondary page)*
-- Title: `Hybrid & Virtual Event Management | CTC`
-- Meta: `When your event goes beyond the room, CTC extends it online — the right technology and genuine engagement, measured from registration to report. Incl. Virtual Event Depot.`
-- H1: `Hybrid & virtual, when the moment calls for it.`
+**Why CTC** *(the differentiator page)*
+- Title: `Why Coast to Coast Conferences & Events | CTC`
+- Meta: `Where the savings come from: 30 years of relationships, deep expertise, a proven process, and a team that loves the work. It's why 75% of clients come back.`
+- H1: `Where the savings actually come from.`
 
 **Industries (hub)**
 - Title: `Event Management for Associations, Corporate & Government | CTC`

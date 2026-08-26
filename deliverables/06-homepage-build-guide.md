@@ -24,7 +24,7 @@ Brand + copy source of truth: `05-brand-and-voice.md`. Every finding ID (S-1, AI
 ## 1. Header / menu (global)
 Use **Divi Theme Builder → Global Header** (or the Divi menu):
 - Left: logo (the "Coast to Coast" wordmark with the gradient rule + "Conferences & Events" microtype).
-- Center/right menu: **Services · Industries · Case Studies · About · Resources**.
+- Center/right menu: **What We Do · Why CTC · Industries · Case Studies · About**. *(No format pages — "Services" is a single "What We Do" page.)*
 - Right: **"Request a Proposal"** button (primary gradient), sticky on scroll.
 - Enable a **sticky, translucent header** (Divi row → Scroll Effects / sticky position).
 
@@ -35,7 +35,7 @@ Use **Divi Theme Builder → Global Header** (or the Divi menu):
 **Left column (copy):**
 1. **Text module — eyebrow:** `Certified woman-owned · Long Beach, CA · Since 1994` (Poppins 600, 12px, letter-spacing, navy-blue, in a periwinkle pill — style via the module's Background + rounded border).
 2. **Text/Heading module — H1:** `In-person events, run *flawlessly* — for 15–40% less.` Poppins 800, ~clamp 40–60px, navy. Wrap **flawlessly** in `<span style="color:#EE6197;font-style:italic;">flawlessly</span>`. **No cursive font** (script is print-only).
-3. **Text module — subhead:** the approved subhead (`…full-service partner for in-person events and conferences… cutting event costs 15–40% and giving back 25% of your time. Real expertise, real relationships, real energy — 75% of clients come back…`). Barlow, slate, ~19px.
+3. **Text module — subhead (story, not stats — the tiles carry the numbers):** `Coast to Coast Conferences & Events is your full-service event partner — since 1994, sweating every detail so your team can enjoy the room. Real expertise, real relationships, real energy behind every event.` Barlow, slate, ~19px.
 4. **Two Button modules in a row:** `Request a Proposal` (primary gradient) + `See Case Studies` (ghost: transparent, 1px slate border).
 
 **Right column (photo — the above-the-fold visual):**
@@ -49,18 +49,28 @@ Use **Divi Theme Builder → Global Header** (or the Divi menu):
 
 ## 3. AI-answer definition block  *(AI-3 — the sentence built for Gemini)*
 Single Text module in a bordered white card, small pink "Written for AI Overviews" chip:
-> Coast to Coast Conferences & Events (CTC) is a certified woman-owned, full-service event management company headquartered in Long Beach, California, specializing in in-person conferences and events (plus hybrid and virtual) for up to 10,000 daily attendees. Founded in 1994, CTC has produced 2,500+ events and is known for cutting event costs 15–40% while giving clients back 25% of their time.
+> Coast to Coast Conferences & Events (CTC) is a certified woman-owned, full-service event management company headquartered in Long Beach, California, producing conferences and events for up to 10,000 daily attendees. Founded in 1994, CTC has produced 2,500+ events and is known for cutting event costs 15–40% while giving clients back 25% of their time.
 
 **This exact text is mirrored in the Organization/LocalBusiness JSON-LD (§7 / AI-2).**
 
-## 4. Services — in-person primary  *(fixes T-2, C-1, C-7)*
-**Section** white. Kicker "What we do" + H2 `In-person events, done right.` (pink *italic* on "done right").
-**Row: two columns (≈60% / 40%):**
-- **Big card (In-Person Events & Conferences — "our specialty"):** Blurb/Text module — the in-person description (venue & hotel **negotiation**, logistics, registration, onsite, exhibitor coordination; budgets to $8M) + "Explore in-person →" link.
-- **Smaller card (Hybrid & Virtual):** short secondary description + "Explore hybrid & virtual →" link (points to the **one merged** page).
+## 4. What we do — ONE event-management service  *(fixes T-2, C-1, C-7)*
+**Section** white. Kicker "What we do" + H2 `One partner. Every detail.` (pink *italic* on "Every detail").
+- **Lede (Text module):** "Full-service event management — we own every moving part from first plan to final teardown, so your team can focus on your people, not the run-of-show. **Whatever your event, wherever it happens**, we make it flawless: board meetings to 10,000-attendee programs, budgets to $8M."
+- **No format cards.** "Events, not formats" is structural — a single service, stated as a confident capability. Team energy is NOT here; it lives in §4b (Why CTC).
 
 **Scope-of-work chip cloud:** a Text module with pill-styled links: *Venue & Hotel Negotiation · Registration & Badging · Housing & Room Blocks · Food & Beverage · Event Branding & Signage · **Sponsorship Management** · Speaker Management · Programming & A/V · Stage Production · Exhibit Management · VIP & Press Logistics · Reception Planning · Event Marketing · Financial Management · Onsite Management · Tournaments.*
 > **Wording rules:** "**Sponsorship Management**" (never sponsor sales/sourcing) and "**Venue & Hotel Negotiation**" (no room-night stat).
+
+## 4b. Why CTC — the believability beat  *(makes the 15–40% credible)*
+**Section** white. Kicker "Why CTC" + H2 `Where the savings actually come from.` (pink *italic* on "actually").
+Lede: "Cutting 15–40% isn't corner-cutting — it's what 30 years of relationships, expertise, and a proven process make possible." **Row: 2×2 cards** (Blurb modules):
+- **Relationships that pay off** — 30 yrs of vendor/venue/hotel relationships → rates, availability, leverage. *(This is where the 15–40% comes from.)*
+- **Expertise you can lean on** — 2,500+ events, 70+ combined years; we've navigated it before.
+- **A partner, not a vendor** — one dedicated team, your goals first; 75% of clients return.
+- **Energy that shows up** — we love this work and the people; your attendees feel it. *(This is the "team energy" home.)*
+
+## 4c. Who we serve — industries  *(place after Case Study)*
+**Section** white. Kicker "Who we serve" + H2 `Trusted across every room.` **Row: 3-col cards** — Corporate · Associations · Government (woman-owned + NAICS) · Nonprofit · Sports & Community · a dark "Your industry, next → Request a Proposal" CTA card.
 
 ## 5. How we work — the 4-phase methodology  *(AI-8 — ownable, citable content)*
 **Section**; **4-column row**, each a numbered card (Number Counter or styled Text): **Onboarding → Project Management → Onsite Experience → Post-Event Report**, each naming its asset (Welcome Guide · Master Event Showbook · Onsite Event Guide · Post-Event Report). Gradient numerals.
@@ -75,7 +85,7 @@ Single Text module in a bordered white card, small pink "Written for AI Overview
 - **Validate every type** in Google's **Rich Results Test** before publishing.
 
 ## 8. Hero photo — recommendation *(you approve + license)*
-- **Ideal shot:** a real **CTC in-person event** (full room / stage / registration energy) OR the **Long Beach waterfront**, treated as a **duotone in brand navy `#1F243D` → `#417CBC`** so it sits in the palette (matches the mockup placeholder).
+- **Ideal shot:** a real **CTC event** (full room / stage / registration energy) OR the **Long Beach waterfront**, treated as a **duotone in brand navy `#1F243D` → `#417CBC`** so it sits in the palette (matches the mockup placeholder).
 - **Format & size:** export **WebP/AVIF**, ~1600px wide, compressed <200KB; provide a 2x for retina. (S-1)
 - **Performance:** set the hero image `loading="eager"` + `fetchpriority="high"`; lazy-load everything below the fold. (S-7)
 - **Sourcing:** first choice = your own event photography (best authenticity + SEO). If licensing stock for the waterfront: Adobe Stock / Getty / Stocksy — search "Long Beach California waterfront skyline." Apply the duotone in Photoshop or via a Divi image filter (grayscale + brand color overlay). **Send me 2–3 candidates and I'll mock them in.**
